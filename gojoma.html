@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Gojoma Script - Official Developer Portal & Documentation Hub</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #06070a; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; color: #cbd5e1; line-height: 1.6; }
+        
+        /* HEADER INDUSTRIAL STYLING LAYOUT BANNER */
+        header { background: linear-gradient(135deg, #0f172a 0%, #020617 100%); border-bottom: 3px solid #00ff66; padding: 50px 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        header h1 { margin: 0; font-size: 38px; text-transform: uppercase; letter-spacing: 2px; color: #00ff66; text-shadow: 0 0 12px rgba(0, 255, 102, 0.35); }
+        header p { margin: 10px 0 0 0; font-size: 15px; color: #94a3b8; max-width: 700px; margin-left: auto; margin-right: auto; }
+        .version-tag { display: inline-block; background: #ff2e63; color: white; font-size: 10px; font-weight: bold; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+
+        /* PORTAL MASTER LAYOUT STRUCTS CONTAINER GRID */
+        .portal-grid { max-width: 1300px; margin: 40px auto; padding: 0 20px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; height: calc(100vh - 250px); min-height: 600px; }
+        @media(max-width: 1024px) { .portal-grid { grid-template-columns: 1fr; height: auto; } }
+
+        .card-panel { background: #0f111a; border: 1px solid #1e293b; border-radius: 12px; padding: 25px; box-shadow: 0 4px 25px rgba(0,0,0,0.4); display: flex; flex-direction: column; height: 100%; box-sizing: border-box; overflow: hidden; }
+        .scrollable-body { flex-grow: 1; overflow-y: auto; padding-right: 8px; }
+        
+        h2 { color: #00adb5; text-transform: uppercase; font-size: 18px; letter-spacing: 0.5px; border-left: 4px solid #ff2e63; padding-left: 10px; margin-top: 0; margin-bottom: 15px; }
+        h3 { font-size: 14px; color: #e2e8f0; text-transform: uppercase; margin-top: 20px; margin-bottom: 8px; letter-spacing: 0.5px; }
+        p { font-size: 14px; color: #94a3b8; margin-bottom: 15px; }
+        
+        /* INTERACTIVE CODE DESCRIPTIONS STYLES MODULES */
+        code { background-color: #1e293b; color: #00ff66; padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', Courier, monospace; font-size: 0.9em; }
+        pre { background-color: #040508; color: #38bdf8; padding: 15px; border-radius: 8px; border-left: 4px solid #00adb5; overflow-x: auto; font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.5; margin-bottom: 15px; }
+        
+        /* DICTIONARY COMPONENT KEYWORD TILES SYSTEM TABLES */
+        .spec-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+        .spec-table th, .spec-table td { border: 1px solid #1e293b; padding: 10px; text-align: left; }
+        .spec-table th { background-color: #141722; color: #00adb5; font-weight: bold; text-transform: uppercase; }
+        .spec-table tr:nth-child(even) { background-color: #131622; }
+        .token-keyword { color: #ff2e63; font-weight: bold; font-family: monospace; }
+
+        /* THE GOJOMA VALIDATOR SANDBOX MODULE INTERFACE LAYOUTS */
+        .sandbox-terminal { background: #000000; border: 1px solid #00ff66; border-radius: 8px; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; flex-grow: 1; min-height: 380px; box-shadow: inset 0 0 15px rgba(0,255,102,0.15); }
+        textarea.terminal-editor { width: 100%; flex-grow: 1; background: #000000; border: 1px solid #141722; padding: 12px; color: #00ff66; font-family: 'Courier New', Courier, monospace; font-size: 13px; font-weight: bold; resize: none; box-sizing: border-box; line-height: 1.5; outline: none; }
+        textarea.terminal-editor:focus { border-color: #00ff66; }
+
+        button.validate-action-btn { background: #00ff66; color: #06070a; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; width: 100%; border: none; padding: 12px; border-radius: 6px; cursor: pointer; margin-top: 12px; font-size: 12px; box-shadow: 0 0 10px rgba(0,255,102,0.2); transition: 0.2s; }
+        button.validate-action-btn:hover { background: #33ff77; box-shadow: 0 0 15px rgba(0,255,102,0.5); }
+        
+        #feedback-feed-channel { margin-top: 15px; padding: 12px; border-radius: 6px; font-family: monospace; font-size: 11px; display: none; line-height: 1.4; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .channel-pass { background: rgba(0, 255, 102, 0.08); border: 1px solid #00ff66; color: #00ff66; }
+        .channel-fail { background: rgba(255, 46, 99, 0.08); border: 1px solid #ff2e63; color: #ff2e63; }
+        
+        .alert-hint-box { background: rgba(255, 234, 0, 0.05); border-left: 3px solid #ffea00; padding: 10px; border-radius: 0 6px 6px 0; font-size: 11px; color: #ffea00; margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <span class="version-tag">Production Specs Core V2.4</span>
+        <h1>Gojoma Language Developer Hub</h1>
+        <p>Learn the complete language specifications, master structural rules, test multi-genre keywords, and validate logic code streams inside our interactive sandbox framework.</p>
+    </header>
+
+    <div class="portal-grid">
+        
+        <div class="card-panel">
+            <h2>Language Specifications Manual</h2>
+            <div class="scrollable-body">
+                <p>Gojoma Script is a human-readable, deterministic Natural Logic Routing framework. It scans plain text rules and structures to directly transform them into high-performance engine system function execution channels at compile-time.</p>
+                
+                <h3>1. Master Grammar Rule Layout Template</h3>
+                <p>Every individual functional command structure block must execute this simple, strict layout blueprint formatting code logic flow rule pattern:</p>
+                <pre>if [Target Entity Name Tag] [Event Trigger Keyword] : [Consequence Action Directive Call]</pre>
+                <p>You must always inject an explicit partition marker symbol <code>:</code> (colon) between the condition and the action; otherwise, the compiler will halt string text stream parsing.</p>
+
+                <h3>2. Core Recognized Event Triggers Dictionary</h3>
+                <table class="spec-table">
+                    <thead>
+                        <tr>
+                            <th>Trigger Code Token</th>
+                            <th>Description Monitoring Channel Target Vector</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="token-keyword">health eq to [value]</td>
+                            <td>Checks standard structural entity vital counters indexes limits trackers values layers buffers.</td>
+                        </tr>
+                        <tr>
+                            <td class="token-keyword">score eq to [value]</td>
+                            <td>Monitors global integers values counter balances parameters indicators paths trackers bounds.</td>
+                        </tr>
+                        <tr>
+                            <td class="token-keyword">punch / heavyattack</td>
+                            <td>Fires proximity melee overlapping collision boundaries checks grids coordinates sweeps fields frames.</td>
+                        </tr>
+                        <tr>
+                            <td class="token-keyword">inside vehicle</td>
+                            <td>Tracks mounting chassis interaction parameters variables values changes triggers.</td>
+                        </tr>
+                        <tr>
+                            <td class="token-keyword">inside water</td>
+                            <td>Enforces AABB intersection bounding constraints matrix triggers (Continuous Liquid damage system logic).</td>
+                        </tr>
+                        <tr>
+                            <td class="token-keyword">holds shift / leftclick</td>
+                            <td>Captures hardware physical peripherals key inputs status vectors channels states dynamically.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>3. Action Directive Consequences Dictionary</h3>
+                <table class="spec-table">
+                    <thead>
+                        <tr>
+                            <th>Consequence Directive Code</th>
+                            <th>Functional Application Mechanics Execution Target</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="token-keyword">dies</td>
+                            <td>Clears instance node array from layout graphics rendering memory arrays instantly.</td>
+                        </tr>
+                        <tr>
+                            <td class="token-keyword">let [id] health [-/+] [value]</td>
+                            <td>Modifies integer structures data channels values states counters decrement operators pipelines.</td>
+                        </tr>
+                        <tr>
+                            <td class="token-keyword">open dialog tree (...)</td>
+                            <td>Mounts custom story options panels and halts active locomotion updates frames grids routines.</td>
+                        </tr>
+                        <tr>
+                            <td class="token-keyword">car physics activate</td>
+                            <td>Overrides camera attachments links directly back onto vehicles meshes transformations arrays tracks.</td>
+                        </tr>
+                        <tr>
+                            <td class="token-keyword">gothrough</td>
+                            <td>Applies high-acceleration kinetic displacement push force pointing along orientation angle views camera.</td>
+                        </tr>
+                        <tr>
+                            <td class="token-keyword">game win</td>
+                            <td>Halts gameplay loops execution processing completely, showing localized victory splash interfaces scenes overlays.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-panel">
+            <h2>Interactive Script Code Sandbox</h2>
+            <p>Write your Gojoma Script lines below inside our green-themed matrix pad console. Click validate to process your task sheets layout scripts blocks to confirm structural compliance with engine requirements.</p>
+            
+            <div class="alert-hint-box">
+                <strong>COMPILER GUARDRAIL NOTICE:</strong> Target identity tags names variables specified inside triggers criteria MUST exactly align with custom characters labels handles declared inside engine placements registry modules grids maps.
+            </div>
+
+            <div class="sandbox-terminal">
+                <textarea class="terminal-editor" id="docs-sandbox-editor">
+// =========================================================
+// GOJOMA DOCUMENTATION PLATFORM CORE - COMPILER VALIDATOR
+// =========================================================
+if hero health eq to 0 : hero dies
+if hero punch enemy1 : let enemy1 health -10
+if hero interact npc : open dialog tree (OptionA: Flirt | OptionB: Challenge)
+if hero inside vehicle : car physics activate and let speed boost 4.5
+if hero inside water : let hero health -10 till hero health eq to 0
+if hero score eq to 150 : game win
+if hero leftclick : fire projectile forward</textarea>
+
+                <button class="validate-action-btn" onclick="executeHubScriptLiveValidation()">Compile & Verify Syntax Stream</button>
+                
+                <div id="feedback-feed-channel"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function executeHubScriptLiveValidation() {
+            const editorTextareaElement = document.getElementById("docs-sandbox-editor");
+            const feedbackChannelContainerNode = document.getElementById("feedback-feed-channel");
+            const textLinesList = editorTextareaElement.value.split('\n');
+            
+            let authenticatedRulesCounter = 0;
+            let dynamicParsingErrorLogsArray = [];
+
+            // Token tracking dictionary matching boundaries indexes filters configurations arrays mappers
+            const structuralTriggersList = ["health eq to", "punch", "interact", "attacks", "kicks", "inside water", "holds shift", "leftclick", "score eq to", "heavyattack", "dialog optiona", "dialog optionb", "status eq to"];
+            const functionalConsequencesList = ["dies", "let", "says", "falls", "gothrough", "open dialog tree", "car physics activate", "game win", "fire projectile forward"];
+
+            textLinesList.forEach((lineTextString, positionIndex) => {
+                let cleanTrimmedRuleRowStr = lineTextString.trim();
+                if(cleanTrimmedRuleRowStr === "" || cleanTrimmedRuleRowStr.startsWith("//")) return; // Bypass layout commentary streams grids blocks lines
+
+                let codeLineIndexTrackerNum = positionIndex + 1;
+                
+                // Rule Integrity Guardrail 1: Check conditional syntax rule formatting standard structure layout rule prefix mapping
+                if(!cleanTrimmedRuleRowStr.toLowerCase().startsWith("if ") || !cleanTrimmedRuleRowStr.includes(":")) {
+                    dynamicParsingErrorLogsArray.push("Line " + codeLineIndexTrackerNum + ": Syntax Layout Exception. Every statement rule structure MUST precisely apply format: 'if [condition] : [consequence]'");
+                    return;
+                }
+
+                // Split components safely over structural colon block separators
+                let conditionalConditionTokenStringPart = cleanTrimmedRuleRowStr.split(":")[0].replace(/if /i, "").toLowerCase();
+                let executionConsequenceTokenStringPart = cleanTrimmedRuleRowStr.split(":")[1].trim().toLowerCase();
+
+                // Cross-match parameters tokens indexes across available vocabulary matrices references
+                let conditionalMatchFlagStatus = structuralTriggersList.some(keywordToken => conditionalConditionTokenStringPart.includes(keywordToken));
+                let consequenceMatchFlagStatus = functionalConsequencesList.some(keywordToken => executionConsequenceTokenStringPart.includes(keywordToken));
+
+                if(!conditionalMatchFlagStatus) {
+                    dynamicParsingErrorLogsArray.push("Line " + codeLineIndexTrackerNum + ": Unrecognized operational condition tracking event target criteria parameter matrix: '" + conditionalConditionTokenStringPart + "'");
+                    return;
+                }
+                if(!consequenceMatchFlagStatus) {
+                    dynamicParsingErrorLogsArray.push("Line " + codeLineIndexTrackerNum + ": Unrecognized executable output action directive consequence call command string instructions task: '" + executionConsequenceTokenStringPart + "'");
+                    return;
+                }
+
+                authenticatedRulesCounter++;
+            });
+
+            // Update user interfaces logging terminal screens modules blocks channels layers views
+            feedbackChannelContainerNode.style.display = "block";
+            if(dynamicParsingErrorLogsArray.length === 0) {
+                feedbackChannelContainerNode.className = "channel-pass";
+                feedbackChannelContainerNode.innerHTML = "<strong>GOJOMA ARCHITECTURE COMPILING VERIFICATION SUCCESSFUL!</strong><br>Successfully processed and built " + authenticatedRulesCounter + " operational rule lines inside memory arrays pipelines with 0 parsing errors encountered.";
+            } else {
+                feedbackChannelContainerNode.className = "channel-fail";
+                feedbackChannelContainerNode.innerHTML = "<strong>GOJOMA ENGINE COMPILER EXECUTION ABORTED (PARSING FAILED):</strong><br>" + dynamicParsingErrorLogsArray.join("<br>");
+            }
+        }
+    </script>  
+</body>
+</html>

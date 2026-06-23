@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>YJD Gametech - 3D Prop Maker Studio</title>
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; background-color: #0b0c10; font-family: 'Segoe UI', sans-serif; color: white; display: flex; }
+        #control-panel { width: 350px; background: #1f2833; height: 100vh; padding: 20px; box-sizing: border-box; border-right: 2px solid #45a29e; z-index: 10; display: flex; flex-direction: column; overflow-y: auto; }
+        #canvas-container { flex-grow: 1; height: 100vh; position: relative; }
+        h2 { color: #66fcf1; margin-top: 0; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; }
+        label { font-size: 11px; color: #c5c6c7; margin-top: 15px; display: block; font-weight: bold; text-transform: uppercase; }
+        select, input[type="text"] { width: 100%; padding: 10px; margin-top: 5px; border-radius: 4px; border: 1px solid #45a29e; background: #0b0c10; color: white; box-sizing: border-box; }
+        .grid-select { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 8px; }
+        .grid-btn { background: #1f2833; border: 1px solid #45a29e; color: #c5c6c7; padding: 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; text-align: center; }
+        .grid-btn.active { background: #45a29e; color: white; }
+        button.export-btn { background: #66fcf1; color: #0b0c10; padding: 14px; font-weight: bold; border: none; border-radius: 4px; margin-top: auto; cursor: pointer; font-size: 14px; text-transform: uppercase; }
+        button.export-btn:hover { background: #45a29e; color: white; }
+        .opt-box { font-size: 11px; background: #0b0c10; padding: 10px; border-radius: 4px; border-left: 3px solid #66fcf1; margin-top: 15px; color: #afafaf; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+    <div id="control-panel">
+        <h2>3D Prop Maker</h2>
+        <p style="font-size:12px; color:#c5c6c7; margin:0;">Construct environmental items with active texture processing maps.</p>
+        
+        <label for="prop-name">Prop Asset Name:</label>
+        <input type="text" id="prop-name" value="Industrial_Cargo_Box">
+
+        <label>Select Core Geometry Shape:</label>
+        <div class="grid-select">
+            <div class="grid-btn active" id="shape-box" onclick="setShape('box')">Cube Crate</div>
+            <div class="grid-btn" id="shape-cyl" onclick="setShape('cylinder')">Cylinder Barrel</div>
+        </div>
+
+        <label>Material Texture Overlays:</label>
+        <div class="grid-select">
+            <div class="grid-btn active" id="tex-wood" onclick="setTexture('wood')">Plank Wood</div>
+            <div class="grid-btn" id="tex-metal" onclick="setTexture('metal')">Rusty Iron</div>
+        </div>
+
+        <label>Engine Target Driver Compatibility:</label>
+        <select id="perf-target">
+            <option value="LOW_SPEC_LEGACY">Legacy Mode (Windows 7/8 Driver Optimizations)</option>
+            <option value="HIGH_SPEC_NATIVE">Performance Mode (Windows 10/11 Anisotropic Native)</option>
+        </select>
+
+        <div class="opt-box">
+            <strong>Optimization Framework:</strong> Generates data-embedded base64 raster links directly into the output document layout to achieve zero-latency scene parsing.
+        </div>
+
+        <button class="export-btn" onclick="exportCompiledProp()">Export Optimized Prop</button>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <script>
+        // --- TEXTURE MAP PROCEDURAL GRAPHICS FACTORY ---
+        function makeProceduralTexture(style) {
+            const size = 512;
+            const canvas = document.createElement('canvas');
+            canvas.width = size; canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            if (style === 'wood') {
+                ctx.fillStyle = '#8B4513'; ctx.fillRect(0, 0, size, size);
+                ctx.fillStyle = '#5C2E0B';
+                for (let i = 0; i < size; i += 12) { ctx.fillRect(0, i + Math.sin(i)*5, size, 3 + Math.random()*2); }
+                ctx.strokeStyle = '#3D1E07'; ctx.lineWidth = 6;
+                for(let x=0; x<=size; x+=128) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,size); ctx.stroke(); }
+            } else {
+                ctx.fillStyle = '#4F5D65'; ctx.fillRect(0, 0, size, size);
+                for (let i = 0; i < 500; i++) {
+                    ctx.fillStyle = Math.random() > 0.5 ? '#A0522D' : '#333333';
+                    ctx.fillRect(Math.random()*size, Math.random()*size, 3+Math.random()*4, 3+Math.random()*4);
+                }
+                ctx.fillStyle = '#111111';
+                for(let y=15; y<size; y+=64) { ctx.beginPath(); ctx.arc(y, 15, 3, 0, Math.PI*2); ctx.fill(); ctx.arc(15, y, 3, 0, Math.PI*2); ctx.fill(); }
+            }
+            const texture = new THREE.CanvasTexture(canvas);
+            return { texture, dataUrl: canvas.toDataURL() };
+        }
+
+        // --- WEBGL WORKSPACE VIEWER SYSTEM ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene(); scene.background = new THREE.Color(0x0b0c10);
+        const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
+        camera.position.set(2, 2, 3); camera.lookAt(0, 0.4, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+        const light = new THREE.DirectionalLight(0xffffff, 0.8); light.position.set(5,10,5); scene.add(light);
+
+        let propGroup = new THREE.Group(); scene.add(propGroup);
+        let textures = { wood: makeProceduralTexture('wood'), metal: makeProceduralTexture('metal') };
+        let activeShape = 'box'; let activeTexture = 'wood';
+
+        function updateWorkspaceProp() {
+            while(propGroup.children.length > 0) { propGroup.remove(propGroup.children[0]); }
+            const mat = new THREE.MeshStandardMaterial({
+                map: textures[activeTexture].texture,
+                roughness: activeTexture === 'metal' ? 0.3 : 0.8,
+                metalness: activeTexture === 'metal' ? 0.8 : 0.0
+            });
+
+            if (activeShape === 'box') {
+                const base = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), mat); base.position.y = 0.5;
+                const trim = new THREE.Mesh(new THREE.BoxGeometry(1.04, 0.1, 1.04), mat); trim.position.y = 0.95;
+                propGroup.add(base, trim);
+            } else {
+                const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 1.2, 32), mat); barrel.position.y = 0.6;
+                const ringMat = new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.9 });
+                const ring = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.05, 32, 1, true), ringMat); ring.position.y = 0.9;
+                propGroup.add(barrel, ring);
+            }
+        }
+
+        function setShape(s) { activeShape = s; document.getElementById('shape-box').classList.toggle('active', s==='box'); document.getElementById('shape-cyl').classList.toggle('active', s==='cylinder'); updateWorkspaceProp(); }
+        function setTexture(t) { activeTexture = t; document.getElementById('tex-wood').classList.toggle('active', t==='wood'); document.getElementById('tex-metal').classList.toggle('active', t==='metal'); updateWorkspaceProp(); }
+
+        updateWorkspaceProp();
+        function run() { requestAnimationFrame(run); propGroup.rotation.y += 0.005; renderer.render(scene, camera); } run();
+
+        // --- EXPORT BUILD COMPILER PIPELINE ---
+        function exportCompiledProp() {
+            const name = document.getElementById('prop-name').value;
+            const target = document.getElementById('perf-target').value;
+            const imgData = textures[activeTexture].dataUrl;
+
+            let geometryInstructions = "";
+            propGroup.children.forEach(mesh => {
+                let colorHex = mesh.material.color ? mesh.material.color.getHexString() : "ffffff";
+                let hasMap = mesh.material.map !== null;
+                if(mesh.geometry.type === "BoxGeometry") {
+                    let p = mesh.geometry.parameters;
+                    geometryInstructions += `\n        addBox(${p.width}, ${p.height}, ${p.depth}, ${hasMap}, 0x${colorHex}, ${mesh.position.x}, ${mesh.position.y}, ${mesh.position.z});`;
+                } else if(mesh.geometry.type === "CylinderGeometry") {
+                    let p = mesh.geometry.parameters;
+                    geometryInstructions += `\n        addCylinder(${p.radiusTop}, ${p.radiusBottom}, ${p.height}, ${p.radialSegments}, ${hasMap}, 0x${colorHex}, ${mesh.position.x}, ${mesh.position.y}, ${mesh.position.z});`;
+                }
+            });
+
+            const template = `<!DOCTYPE html>
+<html>
+<head>
+    <title>YJD Optimized Prop Sandbox - ${name}</title>
+    <style>body { margin: 0; overflow: hidden; background: #050508; font-family: sans-serif; }</style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>
+</head>
+<body>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(1.5, 1.8, 2.5); camera.lookAt(0, 0.5, 0);
+
+        let canvas = document.createElement('canvas');
+        let glVersion = canvas.getContext("webgl2") && "${target}" !== "LOW_SPEC_LEGACY" ? "webgl2" : "webgl";
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(glVersion === "webgl" ? 1.0 : Math.min(window.devicePixelRatio, 2));
+        document.body.appendChild(renderer.domElement);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+        const dl = new THREE.DirectionalLight(0xffffff, 0.8); dl.position.set(5,10,5); scene.add(dl);
+
+        const tex = new THREE.TextureLoader().load("${imgData}");
+        tex.generateMipmaps = true;
+        const propMat = new THREE.MeshStandardMaterial({ map: tex, roughness: "${activeTexture}"==='metal'?0.3:0.8, metalness: "${activeTexture}"==='metal'?0.8:0.0 });
+        const group = new THREE.Group(); scene.add(group);
+
+        function addBox(w,h,d,useMap,color,x,y,z) {
+            const mesh = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), useMap ? propMat : new THREE.MeshStandardMaterial({color}));
+            mesh.position.set(x,y,z); group.add(mesh);
+        }
+        function addCylinder(rt,rb,h,segs,useMap,color,x,y,z) {
+            const mesh = new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,segs), useMap ? propMat : new THREE.MeshStandardMaterial({color}));
+            mesh.position.set(x,y,z); group.add(mesh);
+        }
+
+        ${geometryInstructions}
+
+        function anim() { requestAnimationFrame(anim); group.rotation.y += 0.005; renderer.render(scene, camera); } anim();
+        window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
+    <\/script>
+</body>
+</html>`;
+
+            const blob = new Blob([template], { type: 'text/html' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${name.toLowerCase()}.html`; a.click();
+        }
+    </script>
+</body>
+</html>

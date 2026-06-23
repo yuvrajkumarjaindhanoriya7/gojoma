@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Gojoma - 3D Character Studio</title>
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; background-color: #0f1115; font-family: 'Segoe UI', sans-serif; color: white; display: flex; }
+        #control-panel { width: 360px; background: #1a1c23; height: 100vh; padding: 20px; box-sizing: border-box; border-right: 2px solid #ff2e63; z-index: 10; display: flex; flex-direction: column; overflow-y: auto; }
+        #canvas-container { flex-grow: 1; height: 100vh; position: relative; }
+        h2 { color: #ff2e63; margin-top: 0; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; }
+        label { font-size: 11px; color: #a4a9b7; margin-top: 15px; display: block; font-weight: bold; text-transform: uppercase; }
+        input[type="text"], select { width: 100%; padding: 10px; margin-top: 5px; border-radius: 4px; border: 1px solid #ff2e63; background: #0f1115; color: white; box-sizing: border-box; }
+        .color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 8px; }
+        .color-node { width: 100%; height: 32px; border-radius: 4px; border: 2px solid transparent; cursor: pointer; }
+        .color-node:hover { border-color: white; }
+        button.export-btn { background: #ff2e63; color: white; padding: 14px; font-weight: bold; border: none; border-radius: 4px; margin-top: auto; cursor: pointer; font-size: 14px; text-transform: uppercase; }
+        button.export-btn:hover { background: #cc1b47; }
+        .part-row { display: flex; gap: 5px; margin-top: 5px; }
+        .part-tab { flex: 1; padding: 6px; font-size: 11px; text-align: center; background: #0f1115; border: 1px solid #ff2e63; cursor: pointer; border-radius: 4px; }
+        .part-tab.active { background: #ff2e63; color: white; font-weight: bold; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+    <div id="control-panel">
+        <h2>Character Studio</h2>
+        <p style="font-size:12px; color:#a4a9b7; margin:0;">Animate and recolor target structural skeletal layers.</p>
+        
+        <label for="char-name">Character Identity Name:</label>
+        <input type="text" id="char-name" value="Elite_Soldier">
+
+        <label for="char-role">Default Logic Routine Map:</label>
+        <select id="char-role">
+            <option value="WASD_HERO">WASD Keyboard Controllable Character</option>
+            <option value="AI_ENEMY">Aggressive Hostile AI (Fires/Attacks on Sight)</option>
+        </select>
+
+        <label>Select Target Structural Segment:</label>
+        <div class="part-row">
+            <div class="part-tab active" onclick="setPart('head', this)">Head</div>
+            <div class="part-tab" onclick="setPart('torso', this)">Torso</div>
+            <div class="part-tab" onclick="setPart('arms', this)">Arms</div>
+            <div class="part-tab" onclick="setPart('legs', this)">Legs</div>
+        </div>
+
+        <label>Paint Studio Colorways (20 Clothing Configuration Array):</label>
+        <div class="color-grid" id="palette-grid"></div>
+
+        <button class="export-btn" onclick="exportCharacterSandbox()">Compile Master Character</button>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <script>
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene(); scene.background = new THREE.Color(0x0f1115);
+        const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
+        camera.position.set(0, 2.2, 3.5); camera.lookAt(0, 1, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+        const dl = new THREE.DirectionalLight(0xffffff, 0.7); dl.position.set(5,10,5); scene.add(dl);
+
+        const charGroup = new THREE.Group(); scene.add(charGroup);
+        let elements = {}; let targetSegment = 'head';
+
+        const colorOptions = [
+            "#ff3b30","#ff9500","#ffcc00","#4cd964","#5ac8fa",
+            "#007aff","#5856d6","#ff2d55","#8e8e93","#1c1c1e",
+            "#ffffff","#e5e5ea","#d1d1d6","#4a321a","#f3c68f",
+            "#111215","#2c3e50","#27ae60","#2980b9","#e74c3c"
+        ];
+
+        function assembleCharacterRig() {
+            const mat = new THREE.MeshStandardMaterial({ color: 0x95a5a6, roughness: 0.6 });
+            elements.head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), mat.clone()); elements.head.position.y = 1.5;
+            elements.torso = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.6, 0.25), mat.clone()); elements.torso.position.y = 1.1;
+            elements.armL = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.5, 0.14), mat.clone()); elements.armL.position.set(-0.32, 1.1, 0);
+            elements.armR = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.5, 0.14), mat.clone()); elements.armR.position.set(0.32, 1.1, 0);
+            elements.legL = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.55, 0.18), mat.clone()); elements.legL.position.set(-0.14, 0.52, 0);
+            elements.legR = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.55, 0.18), mat.clone()); elements.legR.position.set(0.14, 0.52, 0);
+            charGroup.add(elements.head, elements.torso, elements.armL, elements.armR, elements.legL, elements.legR);
+        }
+
+        function setPart(p, el) { targetSegment = p; document.querySelectorAll('.part-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); }
+        
+        function drawPalette() {
+            const grid = document.getElementById('palette-grid');
+            colorOptions.forEach(hex => {
+                const node = document.createElement('div'); node.className = 'color-node'; node.style.backgroundColor = hex;
+                node.onclick = () => {
+                    const c = new THREE.Color(hex);
+                    if(targetSegment === 'head') elements.head.material.color = c;
+                    if(targetSegment === 'torso') elements.torso.material.color = c;
+                    if(targetSegment === 'arms') { elements.armL.material.color = c; elements.armR.material.color = c; }
+                    if(targetSegment === 'legs') { elements.legL.material.color = c; elements.legR.material.color = c; }
+                };
+                grid.appendChild(node);
+            });
+        }
+
+        assembleCharacterRig(); drawPalette();
+        function loop() { requestAnimationFrame(loop); charGroup.rotation.y += 0.005; renderer.render(scene, camera); } loop();
+
+        // --- MASTER SCENE CODE INJECTION COMPILER ---
+        function exportCharacterSandbox() {
+            const name = document.getElementById('char-name').value;
+            const role = document.getElementById('char-role').value;
+            const headH = elements.head.material.color.getHexString();
+            const torsoH = elements.torso.material.color.getHexString();
+            const armH = elements.armL.material.color.getHexString();
+            const legH = elements.legL.material.color.getHexString();
+
+            const template = `<!DOCTYPE html>
+<html>
+<head>
+    <title>YJD Interactive Rig Sandbox - ${name}</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #060709; font-family: sans-serif; color: white; }
+        #legend-card { position: absolute; top: 15px; left: 15px; background: rgba(15,17,21,0.9); padding: 12px; border-radius: 4px; border: 1px solid #ff2e63; font-size:12px; }
+        #hint { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 10px 20px; border-radius: 20px; font-size:13px; border:1px solid #ff2e63; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>
+</head>
+<body>
+    <div id="legend-card">
+        <strong>Actor Model: ${name}</strong><br>
+        AI Behavior Vector Status: <span id="status-txt" style="color:#ff2d55;">IDLE</span>
+    </div>
+    <div id="hint">Control Movement: <strong>[ W, A, S, D ]</strong> | Acceleration Jump: <strong>[ SPACEBAR ]</strong></div>
+
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(navigator.userAgent.indexOf("Windows NT 6.1") !== -1 ? 1.0 : Math.min(window.devicePixelRatio, 2));
+        document.body.appendChild(renderer.domElement);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+        const dl = new THREE.DirectionalLight(0xffffff, 0.8); dl.position.set(5,15,5); scene.add(dl);
+        scene.add(new THREE.GridHelper(40, 40, 0xff2e63, 0x222222));
+
+        function buildActor(hd, ts, am, lg) {
+            const g = new THREE.Group();
+            const mHead = new THREE.Mesh(new THREE.SphereGeometry(0.2,16,16), new THREE.MeshStandardMaterial({color: hd})); mHead.position.y = 1.5;
+            const mTorso = new THREE.Mesh(new THREE.BoxGeometry(0.45,0.6,0.25), new THREE.MeshStandardMaterial({color: ts})); mTorso.position.y = 1.1;
+            const mArmL = new THREE.Mesh(new THREE.BoxGeometry(0.12,0.5,0.14), new THREE.MeshStandardMaterial({color: am})); mArmL.position.set(-0.32,1.1,0);
+            const mArmR = new THREE.Mesh(new THREE.BoxGeometry(0.12,0.5,0.14), new THREE.MeshStandardMaterial({color: am})); mArmR.position.set(0.32,1.1,0);
+            const mLegL = new THREE.Mesh(new THREE.BoxGeometry(0.15,0.55,0.18), new THREE.MeshStandardMaterial({color: lg})); mLegL.position.set(-0.14,0.52,0);
+            const mLegR = new THREE.Mesh(new THREE.BoxGeometry(0.15,0.55,0.18), new THREE.MeshStandardMaterial({color: lg})); mLegR.position.set(0.14,0.52,0);
+            g.add(mHead, mTorso, mArmL, mArmR, mLegL, mLegR);
+            return { root: g, armL: mArmL, armR: mArmR, legL: mLegL, legR: mLegR };
+        }
+
+        const hero = buildActor(0x00ff88, 0x222222, 0xffffff, 0x444444); hero.root.position.set(0,0,2); scene.add(hero.root);
+        const entity = buildActor(0x${headH}, 0x${torsoH}, 0x${armH}, 0x${legH}); entity.root.position.set(0,0,-2); scene.add(entity.root);
+
+        camera.position.set(0, 4, 7); camera.lookAt(0, 1, 0);
+
+        const input = { w:false, a:false, s:false, d:false, Space:false };
+        window.addEventListener('keydown', (e) => { if(e.code==="Space") input.Space=true; else input[e.key.toLowerCase()]=true; });
+        window.addEventListener('keyup', (e) => { if(e.code==="Space") input.Space=false; else input[e.key.toLowerCase()]=false; });
+
+        let jumpVel = 0; let jumping = false;
+
+        function update() {
+            requestAnimationFrame(update);
+            let walk = false;
+            if(input.w) { hero.root.position.z -= 0.06; hero.root.rotation.y = Math.PI; walk = true; }
+            if(input.s) { hero.root.position.z += 0.06; hero.root.rotation.y = 0; walk = true; }
+            if(input.a) { hero.root.position.x -= 0.06; hero.root.rotation.y = -Math.PI/2; walk = true; }
+            if(input.d) { hero.root.position.x += 0.06; hero.root.rotation.y = Math.PI/2; walk = true; }
+
+            if(input.Space && !jumping) { jumpVel = 0.22; jumping = true; }
+            if(jumping) { hero.root.position.y += jumpVel; jumpVel -= 0.012; if(hero.root.position.y <= 0) { hero.root.position.y = 0; jumping = false; } }
+
+            let t = Date.now() * 0.01;
+            if(walk) {
+                hero.legL.rotation.x = Math.sin(t) * 0.5; hero.legR.rotation.x = -Math.sin(t) * 0.5;
+                hero.armL.rotation.x = -Math.sin(t) * 0.4; hero.armR.rotation.x = Math.sin(t) * 0.4;
+            } else {
+                hero.legL.rotation.x = 0; hero.legR.rotation.x = 0; hero.armL.rotation.x = 0; hero.armR.rotation.x = 0;
+            }
+
+            let d = hero.root.position.distanceTo(entity.root.position);
+            if("${role}" === "AI_ENEMY" && d < 5.0) {
+                document.getElementById('status-txt').innerText = "LOCK-ON ENGAGED!";
+                entity.root.lookAt(hero.root.position.x, entity.root.position.y, hero.root.position.z);
+                let dir = new THREE.Vector3().subVectors(hero.root.position, entity.root.position).normalize();
+                entity.root.position.addScaledVector(dir, 0.02);
+                entity.legL.rotation.x = Math.sin(t*1.2) * 0.4; entity.legR.rotation.x = -Math.sin(t*1.2) * 0.4;
+            } else {
+                document.getElementById('status-txt').innerText = "WANDERING IDLE";
+            }
+
+            camera.position.set(hero.root.position.x, hero.root.position.y + 3.5, hero.root.position.z + 5.5);
+            camera.lookAt(hero.root.position);
+            renderer.render(scene, camera);
+        }
+        update();
+    <\/script>
+</body>
+</html>`;
+
+            const blob = new Blob([template], { type: 'text/html' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${name.toLowerCase()}.html`; a.click();
+        }
+    </script>
+</body>
+</html>
