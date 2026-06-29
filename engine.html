@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gojoma Engine - AAA Cutscene Studio</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #030407; font-family: 'Segoe UI', system-ui, sans-serif; color: #cbd5e1; overflow: hidden; user-select: none; }
+        
+        #studio-header { height: 45px; background: #0b0d16; border-bottom: 2px solid #eab308; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-sizing: border-box; }
+        .logo { font-weight: bold; font-size: 13px; color: #eab308; letter-spacing: 1px; text-transform: uppercase; }
+        .mode-badge { background: #ff2e63; color: white; font-size: 8px; font-weight: bold; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+
+        #workspace-split { display: flex; flex-direction: column; height: calc(100vh - 45px); }
+        #viewport-container { flex-grow: 1; background: #010102; position: relative; }
+        
+        /* CINEMATIC BLACK BARS OVERLAY SYSTEM */
+        .cinema-bar { position: absolute; left: 0; width: 100%; height: 0; background: #000000; transition: height 0.6s cubic-bezier(0.1, 0.8, 0.3, 1); z-index: 5; }
+        #cinema-top { top: 0; }
+        #cinema-bottom { bottom: 0; }
+        
+        /* REALTME SUBTITLE PIPELINE */
+        #cinema-subtitles { position: absolute; bottom: 45px; left: 50%; transform: translateX(-50%); color: #ffffff; font-size: 13px; font-weight: 500; text-align: center; width: 80%; z-index: 10; text-shadow: 0 2px 4px rgba(0,0,0,0.9); font-family: 'Georgia', serif; opacity: 0; transition: opacity 0.3s ease; }
+
+        /* STUDIO TIMELINE CONTROL DASHBOARD PANEL SHEET */
+        #timeline-dashboard { height: 160px; background: #080a10; border-top: 1px solid #1e293b; padding: 12px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; }
+        .section-title { font-size: 10px; text-transform: uppercase; color: #64748b; font-weight: bold; letter-spacing: 0.5px; }
+        
+        .flex-row { display: flex; gap: 8px; }
+        .studio-btn { flex: 1; background: #121520; border: 1px solid #1e293b; color: #cbd5e1; padding: 10px; font-size: 11px; border-radius: 4px; font-weight: bold; text-transform: uppercase; cursor: pointer; }
+        .studio-btn:active { background: #1e293b; border-color: #eab308; }
+        .btn-play { background: #eab308; color: #030407; border: none; }
+        .btn-play:active { background: #facc15; }
+
+        #timeline-logger { background: #010204; border: 1px solid #131723; padding: 8px; border-radius: 4px; font-family: monospace; font-size: 10px; color: #38bdf8; flex-grow: 1; overflow-y: auto; white-space: pre-wrap; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+    <div id="studio-header">
+        <span class="logo">Gojoma Cinematic Sequencer v4.0</span>
+        <span class="mode-badge">Timeline Mode Ready</span>
+    </div>
+
+    <div id="workspace-split">
+        <div id="viewport-container">
+            <div id="cinema-top" class="cinema-bar"></div>
+            <div id="cinema-bottom" class="cinema-bar"></div>
+            
+            <div id="cinema-subtitles"></div>
+        </div>
+        
+        <div id="timeline-dashboard">
+            <div class="section-title">Cutscene Track Controller &amp; Macro Triggers</div>
+            <div class="flex-row">
+                <button class="studio-btn btn-play" onclick="triggerGojomaCinematicSequence()">► Play Cutscene Sequence</button>
+                <button class="studio-btn" onclick="resetStudioCinematicTrack()">Reset Timeline</button>
+            </div>
+            <div id="timeline-logger">>> Sequencer idle. Tap 'Play Cutscene Sequence' to execute programmatic camera interpolation scripts.</div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. SETUP GRAPHICS INFRASTRUCTURE ---
+        const container = document.getElementById("viewport-container");
+        const sceneSpace = new THREE.Scene(); sceneSpace.background = new THREE.Color(0x06070a);
+        
+        const directorCamera = new THREE.PerspectiveCamera(45, window.innerWidth / (window.innerHeight - 205), 0.1, 1000);
+        directorCamera.position.set(0, 5, 12); directorCamera.lookAt(0, 1, 0);
+        
+        const webglRenderer = new THREE.WebGLRenderer({ antialias: true });
+        webglRenderer.setSize(window.innerWidth, window.innerHeight - 205);
+        container.appendChild(webglRenderer.domElement);
+
+        sceneSpace.add(new THREE.AmbientLight(0xffffff, 0.4));
+        const lightingSun = new THREE.DirectionalLight(0xffffff, 1.2); lightingSun.position.set(5, 15, 10); sceneSpace.add(lightingSun);
+        sceneSpace.add(new THREE.GridHelper(40, 20, 0xeab308, 0x131723));
+
+        // --- 2. INSTANTIATE CINEMATIC ACTORS ---
+        const heroActor = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.4, 0.4), new THREE.MeshStandardMaterial({ color: 0x990000 }));
+        heroActor.position.set(-1.5, 0.7, 0); sceneSpace.add(heroActor);
+
+        const npcVillainActor = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.5, 0.5), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
+        npcVillainActor.position.set(1.5, 0.75, -1); sceneSpace.add(npcVillainActor);
+
+        // --- 3. TIMELINE AUTOMATION ENGINES ---
+        let cutsceneActiveFlag = false;
+        let timelineTimeTracker = 0;
+        
+        const topBarNode = document.getElementById("cinema-top");
+        const bottomBarNode = document.getElementById("cinema-bottom");
+        const subtitleNode = document.getElementById("cinema-subtitles");
+        const logNode = document.getElementById("timeline-logger");
+
+        function triggerGojomaCinematicSequence() {
+            cutsceneActiveFlag = true;
+            timelineTimeTracker = 0;
+            
+            // Deploy Cinematic Widescreen Aspect Aspect Bars (Letterbox Effect)
+            topBarNode.style.height = "40px";
+            bottomBarNode.style.height = "40px";
+            logNode.innerHTML = ">> Gojoma Script Engine: Compiled cutscene block successfully.\n>> Executing track: 'cutscene_intro_01'";
+        }
+
+        function resetStudioCinematicTrack() {
+            cutsceneActiveFlag = false;
+            timelineTimeTracker = 0;
+            topBarNode.style.height = "0px";
+            bottomBarNode.style.height = "0px";
+            subtitleNode.style.opacity = 0;
+            directorCamera.position.set(0, 5, 12);
+            directorCamera.lookAt(0, 1, 0);
+            logNode.innerHTML = ">> Sequencer Status: Timeline track reverted to baseline matrix.";
+        }
+
+        // --- 4. ENGINE RUNTIME TICK CONTROLLER MULTI-STAGE MATRIX ---
+        function studioLoopFrameStep() {
+            requestAnimationFrame(studioLoopFrameStep);
+
+            if (cutsceneActiveFlag) {
+                timelineTimeTracker += 0.016; // Increment delta approximation
+
+                // STAGE A: Camera Panning & Establishing Shot (0 - 3 Seconds)
+                if (timelineTimeTracker > 0 && timelineTimeTracker <= 3) {
+                    directorCamera.position.x = THREE.MathUtils.lerp(directorCamera.position.x, -2, 0.02);
+                    directorCamera.position.z = THREE.MathUtils.lerp(directorCamera.position.z, 6, 0.02);
+                    directorCamera.lookAt(heroActor.position);
+                    
+                    subtitleNode.style.opacity = 1;
+                    subtitleNode.innerText = "TOSKRA: 'Tumhe kya laga tha... tum mujhe is dark zone me hara paoge?'";
+                }
+                // STAGE B: Shot Reverse Shot Focus Variation (3 - 6 Seconds)
+                else if (timelineTimeTracker > 3 && timelineTimeTracker <= 6) {
+                    directorCamera.position.set(2, 2.5, 2);
+                    directorCamera.lookAt(npcVillainActor.position);
+                    subtitleNode.innerText = "VILLAIN: 'Hahaha! Gojoma Engine ki taakat ab mere haath me hai!'";
+                }
+                // STAGE C: Dramatic Close-Up & Action Build (6 - 9 Seconds)
+                else if (timelineTimeTracker > 6 && timelineTimeTracker <= 9) {
+                    directorCamera.position.set(0, 1.2, 4);
+                    directorCamera.lookAt(0, 1, 0);
+                    subtitleNode.innerText = "[ BATTLE MUSIC INTENSIFIES - PREPARING COMBAT HUD ]";
+                }
+                // STAGE D: Automated Script Handover back to Gameplay Controllers
+                else if (timelineTimeTracker > 9) {
+                    resetStudioCinematicTrack();
+                    logNode.innerHTML = ">> Gojoma Core Logic: Cutscene completed. Handing over character transform matrix locks back to real-time player controller inputs loops.";
+                }
+            }
+
+            webglRenderer.render(sceneSpace, directorCamera);
+        }
+        studioLoopFrameStep();
+
+        window.addEventListener('resize', () => {
+            directorCamera.aspect = window.innerWidth / (window.innerHeight - 205);
+            directorCamera.updateProjectionMatrix();
+            webglRenderer.setSize(window.innerWidth, window.innerHeight - 205);
+        });
+    </script>
+</body>
+</html>
