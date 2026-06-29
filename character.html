@@ -1,214 +1,213 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gojoma Engine - AAA Character &amp; NPC Rig Factory</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gojoma AAA Asset Factory Studio v9.5</title>
     <style>
-        body { margin: 0; padding: 0; background-color: #040508; font-family: 'Segoe UI', system-ui, sans-serif; color: #cbd5e1; overflow: hidden; user-select: none; }
-        
-        #studio-top-nav { height: 45px; background: #0c0e17; border-bottom: 2px solid #38bdf8; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-sizing: border-box; }
-        .nav-logo { font-weight: bold; font-size: 13px; color: #38bdf8; letter-spacing: 1px; text-transform: uppercase; }
-        .engine-tier { background: linear-gradient(135deg, #eab308, #ff2e63); color: white; font-size: 8px; font-weight: bold; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+        :root {
+            --bg-base: #05070f;
+            --bg-surface: #0e1122;
+            --bg-input: #020307;
+            --accent-purple: #a855f7;
+            --accent-blue: #38bdf8;
+            --accent-green: #00ff66;
+            --text-main: #94a3b8;
+            --text-bright: #ffffff;
+            --border: #1e293b;
+        }
 
-        #studio-layout-split { display: flex; flex-direction: column; height: calc(100vh - 45px); }
-        #rendering-viewport { flex-grow: 1; background: #010203; position: relative; }
-        
-        /* SCROLLABLE INTERACTIVE ADVANCED CONTROL MATRIX DASHBOARD */
-        #aaa-modifier-dashboard { height: 320px; background: #090b11; border-top: 1px solid #1e293b; padding: 12px; box-sizing: border-box; display: flex; flex-direction: column; overflow-y: auto; }
-        
-        .panel-heading-lbl { font-size: 10px; text-transform: uppercase; color: #64748b; font-weight: bold; margin-bottom: 8px; letter-spacing: 0.5px; border-bottom: 1px solid #141923; padding-bottom: 3px; display: flex; justify-content: space-between; }
-        .slider-control-group { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 10px; }
-        .slider-control-group label { font-size: 11px; font-weight: bold; width: 110px; color: #94a3b8; text-transform: uppercase; }
-        .aaa-slider { flex-grow: 1; accent-color: #38bdf8; background: #1e293b; height: 5px; border-radius: 3px; outline: none; }
-        
-        .flex-row-options { display: flex; gap: 6px; margin-bottom: 12px; }
-        .factory-btn { flex: 1; background: #121622; border: 1px solid #1e293b; color: #cbd5e1; padding: 8px 4px; font-size: 10px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
-        .factory-btn:active { background: #1e293b; border-color: #38bdf8; color: #00ff66; }
-        .btn-build-active { background: #38bdf8; border: none; color: #040508; width: 100%; margin-top: 5px; padding: 10px; font-size: 11px; }
-        .btn-build-active:active { background: #00ff66; }
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-base);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: var(--text-main);
+            display: flex; height: 100vh; overflow: hidden;
+        }
 
-        #aaa-engine-debugger { background: #020305; border: 1px solid #131824; padding: 8px; border-radius: 4px; font-family: monospace; font-size: 10px; color: #00ff66; min-height: 45px; max-height: 55px; overflow-y: auto; white-space: pre-wrap; margin-top: auto; }
+        /* LEFT CONFIGURATION PANELS */
+        #factory-config-panel {
+            width: 400px; background: var(--bg-surface);
+            border-right: 2px solid var(--border);
+            display: flex; flex-direction: column; box-sizing: border-box;
+        }
+        .panel-header { padding: 20px; background: #080a14; border-bottom: 1px solid var(--border); }
+        .panel-header h1 { margin: 0; font-size: 15px; color: var(--accent-purple); text-transform: uppercase; letter-spacing: 1px; }
+        
+        .scroll-settings { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .setting-group { display: flex; flex-direction: column; gap: 6px; }
+        label { font-size: 11px; font-weight: bold; text-transform: uppercase; color: #64748b; }
+        
+        .input-box, .select-box {
+            background: var(--bg-input); border: 1px solid var(--border);
+            color: var(--text-bright); padding: 8px 12px; font-size: 12px; border-radius: 4px; outline: none;
+        }
+        .input-box:focus, .select-box:focus { border-color: var(--accent-purple); }
+
+        .btn {
+            background: var(--accent-purple); color: white; border: none;
+            padding: 10px 16px; border-radius: 4px; font-size: 12px; font-weight: bold;
+            text-transform: uppercase; cursor: pointer; transition: background 0.2s;
+            text-align: center; margin-top: 10px;
+        }
+        .btn:hover { background: #9333ea; }
+
+        /* RIGHT PREVIEW WORKSPACE */
+        #preview-workspace { flex: 1; display: flex; flex-direction: column; padding: 30px; box-sizing: border-box; gap: 20px; }
+        .workspace-title { font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; }
+        
+        #asset-gl-canvas { flex: 1; background: #000; border-radius: 8px; border: 1px solid var(--border); position: relative; overflow: hidden; }
+        
+        #export-output-pad {
+            height: 140px; background: var(--bg-input); border: 1px solid var(--border);
+            border-radius: 6px; color: var(--accent-green); font-family: monospace;
+            font-size: 12px; padding: 12px; resize: none; outline: none; line-height: 1.4;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-    <div id="studio-top-nav">
-        <span class="nav-logo">Gojoma AAA Character Engine</span>
-        <span class="engine-tier">AAA Matrix Compiler Enabled</span>
-    </div>
-
-    <div id="studio-layout-split">
-        <div id="rendering-viewport"></div>
+    <div id="factory-config-panel">
+        <div class="panel-header">
+            <h1>Gojoma Asset Studio Suite</h1>
+        </div>
         
-        <div id="aaa-modifier-dashboard">
-            
-            <div class="panel-heading-lbl"><span>1. Facial &amp; Body Skeletal Deformation (AAA Morph Targets)</span></div>
-            
-            <div class="slider-control-group">
-                <label>Facial Scale</label>
-                <input type="range" class="aaa-slider" id="slider-face" min="0.5" max="1.8" step="0.05" value="1" oninput="executeLiveAAAMorphDeformation()">
-            </div>
-            <div class="slider-control-group">
-                <label>Body Muscle Mass</label>
-                <input type="range" class="aaa-slider" id="slider-body" min="0.6" max="2.2" step="0.05" value="1" oninput="executeLiveAAAMorphDeformation()">
-            </div>
-            <div class="slider-control-group">
-                <label>Height Weight Matrix</label>
-                <input type="range" class="aaa-slider" id="slider-height" min="0.7" max="2.0" step="0.05" value="1" oninput="executeLiveAAAMorphDeformation()">
+        <div class="scroll-settings">
+            <div class="setting-group">
+                <label>Entity Runtime Name ID</label>
+                <input type="text" id="entity-name-input" class="input-box" value="heo_companion" oninput="updateAssetVisuals()">
             </div>
 
-            <div class="panel-heading-lbl"><span>2. Sub-Mesh Attachments &amp; Actor Profile Role</span></div>
-            <div class="flex-row-options">
-                <button class="factory-btn" onclick="attachSubMeshComponent('hair', 0xffffff)">GOW Silver Hair</button>
-                <button class="factory-btn" onclick="attachSubMeshComponent('hair', 0xeab308)">GTA Blonde Hair</button>
-                <button class="factory-btn" onclick="attachSubMeshComponent('weapon', 0x94a3b8)">Equip Leviathan Blade</button>
-            </div>
-            <div class="flex-row-options">
-                <button class="factory-btn" style="border-left: 3px solid #ff2e63;" onclick="switchAIActorRole('HERO_CHAMPION')">Role: Hero</button>
-                <button class="factory-btn" style="border-left: 3px solid #eab308;" onclick="switchAIActorRole('NPC_CIVILIAN')">Role: NPC</button>
-                <button class="factory-btn" style="border-left: 3px solid #a855f7;" onclick="switchAIActorRole('BOSS_ENEMY')">Role: Boss Enemy</button>
+            <div class="setting-group">
+                <label>Archetype Category Profile</label>
+                <select id="entity-archetype-select" class="select-box" onchange="updateAssetVisuals()">
+                    <option value="NPC">Non-Playable Companion (NPC)</option>
+                    <option value="ENEMY">Hostile Combatant Enemy</option>
+                    <option value="ANIMAL">Fauna/Quadruped Wildlife</option>
+                    <option value="SAD_STORY_ACTOR">Cinematic Character (Sad/Injured Variant)</option>
+                </select>
             </div>
 
-            <div class="panel-heading-lbl"><span>3. Build Pipeline Output Compiler</span></div>
-            <button class="factory-btn factory-btn-success btn-build-active" onclick="compileAAAMeshDataToJSONStream()">Compile Asset To Production File Array</button>
+            <div class="setting-group">
+                <label>Structural Mesh Color Definition</label>
+                <select id="entity-color-select" class="select-box" onchange="updateAssetVisuals()">
+                    <option value="0x38bdf8">Cyan Blue (Standard Companion)</option>
+                    <option value="0xff2e63">Crimson Red (Aggressive Aggro)</option>
+                    <option value="0xe2e8f0">Ashen Grey (Melancholic/Sad Story Model)</option>
+                    <option value="0xf59e0b">Amber Gold (Wildlife/Animal Variant)</option>
+                </select>
+            </div>
 
-            <div id="aaa-engine-debugger">>> Advanced Morph Engine Core online. Mesh vectors registered at high-precision intervals.</div>
+            <div class="setting-group">
+                <label>Default Controller Attachment Mode</label>
+                <select id="control-swap-flag" class="select-box" onchange="updateAssetVisuals()">
+                    <option value="STATIC_AI_DRIVEN">AI Pathfinding (Standard NPC Behavior)</option>
+                    <option value="PLAYABLE_ON_STORY_TRIGGER">Playable Swap Capable (Story Hook Triggerable)</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label>Base Movement Speed Vector</label>
+                <input type="number" id="entity-speed-input" class="input-box" value="14" oninput="updateAssetVisuals()">
+            </div>
+
+            <button class="btn" onclick="generateAssetCodeSnippet()">Export Asset Configuration Data</button>
         </div>
     </div>
 
+    <div id="preview-workspace">
+        <div class="workspace-title">Real-Time Model Mesh Blueprint Viewport</div>
+        <div id="asset-gl-canvas"></div>
+        
+        <div class="workspace-title">Generated Gojoma Script Block Output</div>
+        <textarea id="export-output-pad" readonly spellcheck="false">// Click export above to construct your matching data configuration strings...</textarea>
+    </div>
+
     <script>
-        // --- 1. CORE RENDERING ENGINE & INDUSTRIAL LIGHTING SETUP ---
-        const viewPortElement = document.getElementById("rendering-viewport");
-        const editorScene = new THREE.Scene(); editorScene.background = new THREE.Color(0x05060a);
-        
-        const editorCamera = new THREE.PerspectiveCamera(45, window.innerWidth / (window.innerHeight - 365), 0.1, 1000);
-        editorCamera.position.set(0, 3.2, 5.5); editorCamera.lookAt(0, 1.0, 0);
-        
-        const runtimeRenderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
-        runtimeRenderer.setSize(window.innerWidth, window.innerHeight - 365);
-        runtimeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        viewPortElement.appendChild(runtimeRenderer.domElement);
+        // --- WEBGL ENVIRONMENT ARCHITECTURE ---
+        const viewContainer = document.getElementById("asset-gl-canvas");
+        const factoryScene = new THREE.Scene(); factoryScene.background = new THREE.Color(0x020306);
+        const viewCam = new THREE.PerspectiveCamera(45, (window.innerWidth - 460) / (window.innerHeight - 280), 0.1, 500);
+        viewCam.position.set(0, 3, 7); viewCam.lookAt(0, 0.8, 0);
 
-        // High contrast lighting rig to highlight micro muscle deformation vectors
-        editorScene.add(new THREE.AmbientLight(0xffffff, 0.4));
-        const pointLightSun = new THREE.DirectionalLight(0xffffff, 1.2); pointLightSun.position.set(5, 12, 8); editorScene.add(pointLightSun);
-        editorScene.add(new THREE.GridHelper(30, 20, 0x38bdf8, 0x141822));
+        const localRenderer = new THREE.WebGLRenderer({ antialias: true });
+        localRenderer.setSize(window.innerWidth - 460, window.innerHeight - 280);
+        viewContainer.appendChild(localRenderer.domElement);
 
-        // --- 2. ASSEMBLE SKELETAL RIG STRUCTURE (The Morph Mesh Template Object) ---
-        const aaaCharacterRigCompoundGroup = new THREE.Group();
-        editorScene.add(aaaCharacterRigCompoundGroup);
+        factoryScene.add(new THREE.AmbientLight(0xffffff, 0.4));
+        const overheadSun = new THREE.DirectionalLight(0xffffff, 1.2); overheadSun.position.set(5, 15, 5); factoryScene.add(overheadSun);
+        factoryScene.add(new THREE.GridHelper(20, 20, 0xa855f7, 0x1e293b));
 
-        // Create individual bone submeshes pointers references for deformation
-        const torsoMeshBase = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.1, 0.4), new THREE.MeshStandardMaterial({ color: 0x222530, roughness: 0.3 }));
-        torsoMeshBase.position.y = 0.55;
-        
-        const headMeshBase = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), new THREE.MeshStandardMaterial({ color: 0xffdbac }));
-        headMeshBase.position.y = 1.25;
+        // Active Mesh Reference Holder
+        let activeVisualMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 2, 16), new THREE.MeshStandardMaterial({ color: 0x38bdf8 }));
+        factoryScene.add(activeVisualMesh);
 
-        aaaCharacterRigCompoundGroup.add(torsoMeshBase, headMeshBase);
-
-        // Submesh attachment trackers slots slots channels arrays
-        let customHairSlotMeshRef = null;
-        let customWeaponSlotMeshRef = null;
-        let activeActorProfileTagString = "HERO_CHAMPION";
-        const debugConsoleNode = document.getElementById("aaa-engine-debugger");
-
-        // --- 3. LIVE DEFORMATION ENGINE MATRIX INTERPRETATION ---
-        function executeLiveAAAMorphDeformation() {
-            let morphFaceVal = parseFloat(document.getElementById("slider-face").value);
-            let morphBodyVal = parseFloat(document.getElementById("slider-body").value);
-            let morphHeightVal = parseFloat(document.getElementById("slider-height").value);
-
-            // Dynamically alter specific component structural dimensions scaling indices real-time
-            headMeshBase.scale.set(morphFaceVal, morphFaceVal, morphFaceVal);
-            torsoMeshBase.scale.set(morphBodyVal, 1.0, morphBodyVal); // Broadens chests/muscles
-            aaaCharacterRigCompoundGroup.scale.y = morphHeightVal;     // Alters height variables
-
-            // Auto readjust attachment anchor points to prevent offsets when scaling
-            if (customHairSlotMeshRef) {
-                customHairSlotMeshRef.position.y = 1.25 + (0.12 * morphFaceVal);
-                customHairSlotMeshRef.scale.set(morphFaceVal, morphFaceVal, morphFaceVal);
-            }
-            if (customWeaponSlotMeshRef) {
-                customWeaponSlotMeshRef.position.x = 0.4 * morphBodyVal;
-            }
-
-            debugConsoleNode.innerHTML = `>> Morph Signal Matrix: Live computing vertex tracking updates... [Face Morph: ${morphFaceVal}x | Muscle Bulk: ${morphBodyVal}x | Height Grid Factor: ${morphHeightVal}x]`;
-        }
-
-        // --- 4. ATTACHMENT SLOTS MAPPING MANAGERS (HAIR & WEAPONS SLOTS) ---
-        function attachSubMeshComponent(slotKeyString, themeHexCodeValue) {
-            if (slotKeyString === "hair") {
-                if (customHairSlotMeshRef) aaaCharacterRigCompoundGroup.remove(customHairSlotMeshRef);
-                
-                customHairSlotMeshRef = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.12, 0.24), new THREE.MeshStandardMaterial({ color: themeHexCodeValue, roughness: 0.8 }));
-                customHairSlotMeshRef.position.set(0, 1.38, -0.02);
-                aaaCharacterRigCompoundGroup.add(customHairSlotMeshRef);
-                debugConsoleNode.innerHTML = ">> Submesh Core: Injected customizable dynamic Hair module array onto bone target anchor node.";
-            } 
-            else if (slotKeyString === "weapon") {
-                if (customWeaponSlotMeshRef) aaaCharacterRigCompoundGroup.remove(customWeaponSlotMeshRef);
-                
-                customWeaponSlotMeshRef = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.3, 0.03), new THREE.MeshStandardMaterial({ color: themeHexCodeValue, metalness: 0.9 }));
-                customWeaponSlotMeshRef.position.set(0.4, 0.6, 0.1); // Weapon attached directly to Right-Hand weapon slot matrix
-                aaaCharacterRigCompoundGroup.add(customWeaponSlotMeshRef);
-                debugConsoleNode.innerHTML = ">> Submesh Core: Linked Level Weapon Rig: 'Leviathan Blade' securely into Actor Right Hand Weapon slot pipeline.";
-            }
-            executeLiveAAAMorphDeformation(); // Instantly apply deformation bounds adjustments
-        }
-
-        function switchAIActorRole(incomingRoleKeyString) {
-            activeActorProfileTagString = incomingRoleKeyString;
-            if (incomingRoleKeyString === "BOSS_ENEMY") {
-                torsoMeshBase.material.color.setHex(0x3b0764); // Dark Purple armor for Bosses
-                debugConsoleNode.innerHTML = ">> Actor Register Status: Switched profile template configuration to high-health BOSS_ENEMY profile structure loops.";
-            } else if (incomingRoleKeyString === "NPC_CIVILIAN") {
-                torsoMeshBase.material.color.setHex(0x475569); // Plain clothing for standard town NPCs
-                debugConsoleNode.innerHTML = ">> Actor Register Status: Switched profile template configuration to optimized baseline ambient NPC behavior matrices.";
-            } else {
-                torsoMeshBase.material.color.setHex(0x222530); // Hero Base armor mesh shade
-                debugConsoleNode.innerHTML = ">> Actor Register Status: Re-assigned profile template registry hooks to player HERO_CHAMPION asset variables loop.";
-            }
-        }
-
-        // --- 5. THE PRODUCTION CODE DATA EXPORT ENGINE CORDS COMPILER ---
-        function compileAAAMeshDataToJSONStream() {
-            const finalCompiledAAAAssetPackageData = {
-                meshActorRoleType: activeActorProfileTagString,
-                morphDataIndices: {
-                    facialScaleFactor: headMeshBase.scale.x,
-                    muscleBulkFactor: torsoMeshBase.scale.x,
-                    actorHeightFactor: aaaCharacterRigCompoundGroup.scale.y
-                },
-                attachedSubMeshComponentsMap: {
-                    hasHairAttachedModule: (customHairSlotMeshRef !== null),
-                    hasActiveWeaponAttached: (customWeaponSlotMeshRef !== null)
-                },
-                productionCompatibilityDirectives: "Cross_Platform_Unified_AAA_Asset_Package"
-            };
-
-            debugConsoleNode.innerHTML = `<span style='color:#00ff66; font-weight:bold;'>>> AAA STREAM EXPORT SUCCESS!\n>> Packed Matrix Data Structure: Role: ${finalCompiledAAAAssetPackageData.meshActorRoleType} | Morph Target Data Arrays compiled inside production buffers. This asset configuration can be called into game logic files using any custom tracking ID!</span>`;
-        }
-
-        // --- 6. CONTINUOUS VIEWPORT RENDERING TIMING MATRICES TICK ---
-        function studioTickLoopStep() {
-            requestAnimationFrame(studioTickLoopStep);
+        function updateAssetVisuals() {
+            factoryScene.remove(activeVisualMesh);
             
-            // Auto rotate slowly inside viewport frame tracking limits to examine geometric balance loops parameters
-            aaaCharacterRigCompoundGroup.rotation.y += 0.008;
-
-            runtimeRenderer.render(editorScene, editorCamera);
+            const archType = document.getElementById("entity-archetype-select").value;
+            const chosenHex = parseInt(document.getElementById("entity-color-select").value);
+            const activeMat = new THREE.MeshStandardMaterial({ color: chosenHex, roughness: 0.4 });
+            
+            // Adjust geometry bounds based on selection profiles
+            if (archType === "ANIMAL") {
+                // Horizontal orientation mesh block matrix for quadruped structures
+                activeVisualMesh = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.8, 1.8), activeMat);
+                activeVisualMesh.position.set(0, 0.4, 0);
+            } else if (archType === "SAD_STORY_ACTOR") {
+                // Tilted slouched visual profile representing weary/injured narrative models
+                activeVisualMesh = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.8, 0.9), activeMat);
+                activeVisualMesh.rotation.z = 0.25; 
+                activeVisualMesh.position.set(0, 0.9, 0);
+            } else if (archType === "ENEMY") {
+                // Heavily bulked up layout boundaries representing hostile combatants
+                activeVisualMesh = new THREE.Mesh(new THREE.BoxGeometry(1.4, 2.4, 1.4), activeMat);
+                activeVisualMesh.position.set(0, 1.2, 0);
+            } else {
+                // Default streamlined cylinder proxy structures for standard companion NPCs
+                activeVisualMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 2.0, 16), activeMat);
+                activeVisualMesh.position.set(0, 1.0, 0);
+            }
+            
+            factoryScene.add(activeVisualMesh);
         }
-        studioTickLoopStep();
+
+        function generateAssetCodeSnippet() {
+            const nameID = document.getElementById("entity-name-input").value;
+            const profile = document.getElementById("entity-archetype-select").value;
+            const hexColor = document.getElementById("entity-color-select").value;
+            const behaviorFlag = document.getElementById("control-swap-flag").value;
+            const speed = document.getElementById("entity-speed-input").value;
+
+            const codeSnippet = `// --- CONSTRUCTED MULTI-ARCHETYPE DEFINITION PROFILE ---
+define asset_profile named "${nameID}" :
+    set asset_archetype ${profile}
+    set visual_render_hex ${hexColor}
+    set baseline_movement_speed ${speed}
+    set controller_swap_capability ${behaviorFlag === "PLAYABLE_ON_STORY_TRIGGER" ? "TRUE" : "FALSE"}
+
+// --- GOJOMA LIVE CONTEXT INTERACTION RUNTIME LOOP ---
+if story_event eq swap_trigger_${nameID} :
+    execute dynamic_controller_takeover target_entity "${nameID}" tracking_time 45_sec`;
+
+            document.getElementById("export-output-pad").value = codeSnippet;
+        }
+
+        // Run animation tick loop step
+        function animateStudioView() {
+            requestAnimationFrame(animateStudioView);
+            activeVisualMesh.rotation.y += 0.01;
+            localRenderer.render(factoryScene, viewCam);
+        }
+        
+        updateAssetVisuals();
+        animateStudioView();
 
         window.addEventListener('resize', () => {
-            let activeWidthMetric = window.innerWidth;
-            let activeHeightMetric = window.innerHeight - 365;
-            editorCamera.aspect = activeWidthMetric / activeHeightMetric;
-            editorCamera.updateProjectionMatrix();
-            runtimeRenderer.setSize(activeWidthMetric, activeHeightMetric);
+            const w = window.innerWidth - 460; const h = window.innerHeight - 280;
+            viewCam.aspect = w / h; viewCam.updateProjectionMatrix();
+            localRenderer.setSize(w, h);
         });
     </script>
 </body>
