@@ -3,273 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gojoma Character &amp; Prop Asset Factory Suite</title>
+    <title>Gojoma Global Prop Factory Suite v10.0</title>
     <style>
         :root {
-            --bg-base: #030508;
-            --bg-surface: #0b0e14;
-            --bg-panel: #111522;
+            --bg-base: #020306;
+            --bg-surface: #0a0d18;
+            --bg-input: #010204;
             --accent-purple: #a855f7;
-            --accent-green: #00ff66;
             --accent-blue: #38bdf8;
+            --accent-green: #00ff66;
             --text-main: #94a3b8;
             --text-bright: #ffffff;
             --border: #1e293b;
         }
 
         body {
-            margin: 0; padding: 0;
-            background-color: var(--bg-base);
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            color: var(--text-main);
+            margin: 0; padding: 0; background-color: var(--bg-base);
+            font-family: 'Segoe UI', system-ui, sans-serif; color: var(--text-main);
             display: flex; height: 100vh; overflow: hidden;
         }
 
-        /* LEFT SIDEBAR CONTROLS */
-        #control-panel {
-            width: 400px; background: var(--bg-surface);
-            border-right: 2px solid var(--border);
-            display: flex; flex-direction: column;
-            box-sizing: border-box; overflow-y: auto;
+        /* SIDEBAR CATEGORY CONTROLS */
+        #factory-sidebar {
+            width: 380px; background: var(--bg-surface); border-right: 2px solid var(--border);
+            display: flex; flex-direction: column; box-sizing: border-box;
         }
-
-        .panel-header {
-            padding: 20px; border-bottom: 1px solid var(--border);
-            background: #080a0f;
-        }
-        .panel-header h1 { margin: 0; font-size: 16px; color: var(--accent-purple); text-transform: uppercase; letter-spacing: 1px; }
-        .panel-header p { margin: 5px 0 0 0; font-size: 11px; color: #64748b; }
-
-        .section-block { padding: 15px 20px; border-bottom: 1px solid var(--border); }
-        .section-title { font-size: 11px; text-transform: uppercase; font-weight: bold; color: var(--text-bright); margin-bottom: 12px; letter-spacing: 0.5px; }
-
-        /* BUTTON CONFIGS */
-        .grid-buttons { display: flex; gap: 8px; margin-bottom: 10px; }
-        .factory-btn {
-            flex: 1; background: var(--bg-panel); color: var(--text-bright);
-            border: 1px solid var(--border); padding: 10px; font-size: 11px;
-            font-weight: bold; border-radius: 4px; text-transform: uppercase;
-            cursor: pointer; transition: all 0.2s;
-        }
-        .factory-btn:hover { border-color: var(--accent-purple); color: var(--accent-purple); }
-        .factory-btn.active { background: var(--accent-purple); border-color: var(--accent-purple); color: white; }
+        .sidebar-section { padding: 15px 20px; border-bottom: 1px solid var(--border); }
+        .sidebar-section h1 { margin: 0; font-size: 13px; color: var(--accent-purple); text-transform: uppercase; letter-spacing: 1px; }
         
-        .btn-bake { background: var(--accent-green); color: #000; border: none; width: 100%; margin-top: 5px; }
-        .btn-bake:hover { background: #00cc55; }
-
-        /* SLIDER CONFIGS */
-        .control-row { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
-        .control-row label { font-size: 11px; text-transform: uppercase; font-weight: bold; color: #64748b; }
-        .factory-slider { width: 100%; accent-color: var(--accent-purple); background: #1e293b; height: 6px; border-radius: 3px; outline: none; }
-
-        /* RIGHT RENDER VIEWPORT & LIVE LOGGER */
-        #display-pipeline { flex: 1; display: flex; flex-direction: column; position: relative; }
-        #canvas-viewport { flex: 1; background: #010203; }
+        .scroll-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        label { font-size: 11px; font-weight: bold; text-transform: uppercase; color: #64748b; }
         
-        #asset-console {
-            height: 140px; background: #020306; border-top: 1px solid var(--border);
-            padding: 15px; font-family: monospace; font-size: 11px; color: var(--accent-blue);
-            box-sizing: border-box; overflow-y: auto; white-space: pre-wrap;
+        .select-box, .input-box {
+            background: var(--bg-input); border: 1px solid var(--border);
+            color: var(--text-bright); padding: 8px 12px; font-size: 12px; border-radius: 4px; outline: none;
         }
+        .select-box:focus, .input-box:focus { border-color: var(--accent-purple); }
 
-        .stat-badge { position: absolute; top: 15px; right: 15px; background: rgba(11,14,20,0.85); border: 1px solid var(--border); padding: 5px 10px; border-radius: 4px; font-family: monospace; font-size: 11px; color: var(--accent-green); }
+        .btn {
+            background: var(--accent-purple); color: white; border: none;
+            padding: 10px 14px; border-radius: 4px; font-size: 11px; font-weight: bold;
+            text-transform: uppercase; cursor: pointer; transition: all 0.2s; text-align: center;
+        }
+        .btn:hover { background: #9333ea; }
+        .btn-blue { background: var(--accent-blue); color: #000; }
+        .btn-blue:hover { background: #0ea5e9; }
+
+        /* PREVIEW VIEWPORT WORKSPACE */
+        #viewport-container { flex: 1; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; gap: 15px; }
+        .viewport-header { font-size: 11px; font-weight: bold; text-transform: uppercase; color: #64748b; display: flex; justify-content: space-between; }
+        #canvas-3d-frame { flex: 1; background: #000; border-radius: 6px; border: 1px solid var(--border); position: relative; }
+        
+        #individual-file-output {
+            height: 160px; background: var(--bg-input); border: 1px solid var(--border);
+            border-radius: 6px; color: var(--accent-green); font-family: monospace;
+            font-size: 12px; padding: 12px; resize: none; outline: none; line-height: 1.4;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-    <div id="control-panel">
-        <div class="panel-header">
-            <h1>Gojoma Asset Factory</h1>
-            <p>Standalone AAA Rigging &amp; Optimization Matrix</p>
+    <div id="factory-sidebar">
+        <div class="sidebar-section">
+            <h1>Gojoma Global Prop Factory</h1>
         </div>
-
-        <div class="section-block">
-            <div class="section-title">1. Select Asset Archetype</div>
-            <div class="grid-buttons">
-                <button id="tab-char" class="factory-btn active" onclick="switchArchetypeMode('character')">Character Model</button>
-                <button id="tab-prop" class="factory-btn" onclick="switchArchetypeMode('prop')">Prop Asset</button>
-            </div>
-        </div>
-
-        <div class="section-block">
-            <div class="section-title">2. Geometry Templates</div>
-            <div id="character-variants" class="grid-buttons">
-                <button class="factory-btn" onclick="buildSelectedAsset('hero')">Hero Knight</button>
-                <button class="factory-btn" onclick="buildSelectedAsset('alien')">Alien Beast</button>
-            </div>
-            <div id="prop-variants" class="grid-buttons" style="display: none;">
-                <button class="factory-btn" onclick="buildSelectedAsset('chest')">Sci-Fi Chest</button>
-                <button class="factory-btn" onclick="buildSelectedAsset('pillar')">Ancient Pillar</button>
-            </div>
-        </div>
-
-        <div class="section-block">
-            <div class="section-title">3. God-Graphics Hardware Scaling Engine</div>
-            <div class="control-row">
-                <label>Target Hardware Optimization Profile</label>
-                <select id="hardware-decimation-tier" class="factory-slider" style="background:#111522; color:#fff; border:1px solid var(--border); height:30px; font-size:11px;" onchange="updateAssetGeometryResolution()">
-                    <option value="RTX_HIGH">RTX Ultra Mode (Max Geometry Loops)</option>
-                    <option value="MID_BALANCED">Balanced Profile (Mid-Poly Topology)</option>
-                    <option value="POTATO_WIN7">Potato Windows 7 (Flat Low-Poly Hull)</option>
+        
+        <div class="scroll-container">
+            <div class="form-group">
+                <label>Select Category Layer</label>
+                <select id="prop-category-select" class="select-box" onchange="populateSubItems()">
+                    <option value="URBAN_STREET">Urban / Street Props (Lights, Benches, Hydrants)</option>
+                    <option value="TERRAIN_GROUND">Terrain &amp; Ground (Meshes, Roads, Cliffs)</option>
+                    <option value="VEGETATION">Vegetation (Trees, Bushes, Lily Pads)</option>
+                    <option value="ARCHITECTURE">Structures &amp; Architecture (Walls, Bridges)</option>
+                    <option value="INTERIOR_INDOOR">Interior / Indoor (Furniture, Electronics)</option>
+                    <option value="INDUSTRIAL_MILITARY">Industrial / Military (Drums, Bunkers)</option>
+                    <option value="LIGHTING_PROPS">Lighting Elements (Neon, Torches)</option>
                 </select>
             </div>
-            <div class="control-row">
-                <label id="slider-label-alpha">Scale Axis Height: 1.0x</label>
-                <input type="range" id="scale-modifier-slider" class="factory-slider" min="0.5" max="2.0" step="0.1" value="1.0" oninput="updateAssetGeometryResolution()">
-            </div>
-        </div>
 
-        <div class="section-block" style="margin-top: auto;">
-            <div class="section-title">4. Production Packaging</div>
-            <button class="factory-btn btn-bake" onclick="bakeAssetToGojomaEngineManifest()">Bake Rig &amp; Export Object Data</button>
+            <div class="form-group">
+                <label>Target Prop Item</label>
+                <select id="prop-subitem-select" class="select-box" onchange="updateProceduralMeshPreview()">
+                    </select>
+            </div>
+
+            <div class="form-group">
+                <label>Asset Runtime Variable File Name</label>
+                <input type="text" id="prop-filename-input" class="input-box" value="street_light_mod">
+            </div>
+
+            <div class="form-group">
+                <label>Structural Render Color</label>
+                <select id="prop-color-select" class="select-box" onchange="updateProceduralMeshPreview()">
+                    <option value="0x64748b">Urban Concrete Slate (Grey)</option>
+                    <option value="0x15803d">Forest Vegetation (Green)</option>
+                    <option value="0xb91c1c">Industrial / Warning Core (Red)</option>
+                    <option value="0xd97706">Timber / Ground Track (Amber)</option>
+                </select>
+            </div>
+
+            <button class="btn" onclick="generateIsolatedFileStream()">Construct Prop Manifest</button>
+            <button class="btn btn-blue" onclick="downloadIsolatedFileManifest()">Download Separate Asset File (.gs)</button>
         </div>
     </div>
 
-    <div id="display-pipeline">
-        <div id="canvas-viewport"></div>
-        <div id="live-vertex-badge" class="stat-badge">Active Vertices: 2,400 (Max-LOD)</div>
-        <div id="asset-console">>> Studio Asset Factory Module loaded. Choose an archetype to initialize geometry pipelines...</div>
+    <div id="viewport-container">
+        <div class="viewport-header">
+            <span>Dynamic Architectural Asset Blueprint Viewport</span>
+            <span id="file-indicator" style="color:var(--accent-blue);">Active Output File: street_light_mod.gs</span>
+        </div>
+        <div id="canvas-3d-frame"></div>
+        
+        <div class="viewport-header">Isolated File Code Stream Target (.gs)</div>
+        <textarea id="individual-file-output" readonly spellcheck="false">// Select asset parameters and execute construction routines...</textarea>
     </div>
 
     <script>
-        // --- 1. VIEWPORT GRAPHICS FRAME SETUP ---
-        const viewField = document.getElementById("canvas-viewport");
-        const factoryScene = new THREE.Scene(); factoryScene.background = new THREE.Color(0x06080d);
-        
-        const factoryCamera = new THREE.PerspectiveCamera(45, (window.innerWidth - 400) / (window.innerHeight - 140), 0.1, 500);
-        factoryCamera.position.set(0, 4, 8); factoryCamera.lookAt(0, 1.5, 0);
-        
-        const factoryRenderer = new THREE.WebGLRenderer({ antialias: true });
-        factoryRenderer.setSize(window.innerWidth - 400, window.innerHeight - 140);
-        viewField.appendChild(factoryRenderer.domElement);
+        // --- 1. FULL ASSET CATEGORY ARCHETYPE INDEXATION MATRIX ---
+        const structuralCategoryTree = {
+            URBAN_STREET: ["street_light", "traffic_light", "bench", "bus_stop", "dumpster", "trash_can", "mailbox", "fire_hydrant", "barrier", "cone", "manhole_cover", "power_pole"],
+            TERRAIN_GROUND: ["ground_tile", "cliff_face", "rock_formation", "sand_surface", "mud_surface", "snow_surface", "road_track", "dirt_path"],
+            VEGETATION: ["tree_oak", "tree_pine", "bush_shrub", "hedge_row", "grass_clump", "flower_weed", "ivy_overlay", "lily_pad"],
+            ARCHITECTURE: ["wall_segment", "fence_gate", "bridge_staircase", "ladder_rig", "ruins_rubble", "pillar_arch"],
+            INTERIOR_INDOOR: ["table_desk", "chair_sofa", "shelf_cabinet", "locker_unit", "bed_mattress", "computer_monitor", "crate_box"],
+            INDUSTRIAL_MILITARY: ["shipping_container", "oil_drum", "fuel_tank", "generator_transformer", "sandbag_barricade", "barbed_wire", "watchtower_bunker"],
+            LIGHTING_PROPS: ["lantern_torch", "candle", "spotlight_flood", "neon_sign", "billboard_light"]
+        };
 
-        factoryScene.add(new THREE.AmbientLight(0xffffff, 0.3));
-        const focalSun = new THREE.DirectionalLight(0xffffff, 1.5); focalSun.position.set(5, 15, 10); factoryScene.add(focalSun);
-        
-        const floorGrid = new THREE.GridHelper(30, 15, 0xa855f7, 0x1e293b); floorGrid.position.y = 0; factoryScene.add(floorGrid);
+        // --- 2. THREE.JS VISUAL SCENE BLUEPRINT FIELD SETUP ---
+        const canvasContainer = document.getElementById("canvas-3d-frame");
+        const masterScene = new THREE.Scene(); masterScene.background = new THREE.Color(0x020306);
+        const engineCam = new THREE.PerspectiveCamera(45, (window.innerWidth - 420) / (window.innerHeight - 270), 0.1, 500);
+        engineCam.position.set(0, 4, 8); engineCam.lookAt(0, 1, 0);
 
-        // --- 2. WORKSPACE SYNCHRONIZATION AND MEMORY REGISTERS ---
-        let currentMode = "character";
-        let currentSubtype = "hero";
-        let activeVisualGroup = null;
+        const engineRenderer = new THREE.WebGLRenderer({ antialias: true });
+        engineRenderer.setSize(window.innerWidth - 420, window.innerHeight - 270);
+        canvasContainer.appendChild(engineRenderer.domElement);
 
-        const consoleLogNode = document.getElementById("asset-console");
-        const vertexBadgeNode = document.getElementById("live-vertex-badge");
+        masterScene.add(new THREE.AmbientLight(0xffffff, 0.45));
+        const overheadSunlight = new THREE.DirectionalLight(0xffffff, 1.3); overheadSunlight.position.set(10, 25, 10); masterScene.add(overheadSunlight);
+        masterScene.add(new THREE.GridHelper(30, 30, 0xa855f7, 0x1e293b));
 
-        function cleanAssetWorkspace() {
-            if (activeVisualGroup) { factoryScene.remove(activeVisualGroup); activeVisualGroup = null; }
-        }
+        let runtimeActivePropMesh = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshStandardMaterial({color:0x64748b}));
+        masterScene.add(runtimeActivePropMesh);
 
-        function switchArchetypeMode(targetModeString) {
-            currentMode = targetModeString;
-            document.getElementById("tab-char").classList.toggle("active", targetModeString === "character");
-            document.getElementById("tab-prop").classList.toggle("active", targetModeString === "prop");
-            
-            document.getElementById("character-variants").style.display = targetModeString === "character" ? "flex" : "none";
-            document.getElementById("prop-variants").style.display = targetModeString === "prop" ? "flex" : "none";
-            
-            currentSubtype = targetModeString === "character" ? "hero" : "chest";
-            updateAssetGeometryResolution();
-        }
+        // --- 3. DYNAMIC CONTROL ARRAY INTERFACING INTERACTION RUNTIME ---
+        function populateSubItems() {
+            const currentCategory = document.getElementById("prop-category-select").value;
+            const subSelector = document.getElementById("prop-subitem-select");
+            subSelector.innerHTML = "";
 
-        function buildSelectedAsset(subtypeString) {
-            currentSubtype = subtypeString;
-            updateAssetGeometryResolution();
-        }
-
-        // --- 3. THE GOD-GRAPHICS GEOMETRY SYNTHESIZER ---
-        function updateAssetGeometryResolution() {
-            cleanAssetWorkspace();
-            activeVisualGroup = new THREE.Group();
-
-            const optimizationTier = document.getElementById("hardware-decimation-tier").value;
-            const dimensionScalar = parseFloat(document.getElementById("scale-modifier-slider").value);
-            document.getElementById("slider-label-alpha").innerText = `Scale Axis Height: ${dimensionScalar.toFixed(1)}x`;
-
-            // Procedural High Fidelity Shading Materials Mapping (Pure Math-Driven, Runs Fast Anywhere)
-            const structuralMaterial = new THREE.MeshStandardMaterial({
-                color: currentMode === "character" ? (currentSubtype === "hero" ? 0x38bdf8 : 0x00ff66) : (currentSubtype === "chest" ? 0xd97706 : 0x64748b),
-                metalness: currentSubtype === "hero" || currentSubtype === "chest" ? 0.85 : 0.2,
-                roughness: optimizationTier === "RTX_HIGH" ? 0.15 : 0.5
+            structuralCategoryTree[currentCategory].forEach(item => {
+                const opt = document.createElement("option");
+                opt.value = item;
+                opt.innerText = item.replace(/_/g, " ").toUpperCase();
+                subSelector.appendChild(opt);
             });
 
-            if (currentMode === "character") {
-                // RENDER CHARACTER ASSEMBLY RIG
-                if (optimizationTier === "RTX_HIGH") {
-                    // High Poly Smooth Structural Configuration Mapping
-                    const headMesh = new THREE.Mesh(new THREE.SphereGeometry(0.4 * dimensionScalar, 32, 32), structuralMaterial); headMesh.position.y = 2.8;
-                    const torsoMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.5 * dimensionScalar, 0.3 * dimensionScalar, 1.2, 32), structuralMaterial); torsoMesh.position.y = 1.9;
-                    activeVisualGroup.add(headMesh, torsoMesh);
-                    vertexBadgeNode.innerText = "Active Vertices: 2,400 (RTX Ultra Complex Rig)";
-                } 
-                else if (optimizationTier === "MID_BALANCED") {
-                    const headMesh = new THREE.Mesh(new THREE.SphereGeometry(0.4 * dimensionScalar, 12, 12), structuralMaterial); headMesh.position.y = 2.8;
-                    const torsoMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.5 * dimensionScalar, 0.3 * dimensionScalar, 1.2, 12), structuralMaterial); torsoMesh.position.y = 1.9;
-                    activeVisualGroup.add(headMesh, torsoMesh);
-                    vertexBadgeNode.innerText = "Active Vertices: 450 (Balanced Optimization Profile)";
-                } 
-                else {
-                    // Potato Mode: Strip away individual limbs and loops. Render single flat box layout (zero compute cost)
-                    const lowPolyHullBox = new THREE.Mesh(new THREE.BoxGeometry(0.8 * dimensionScalar, 2.5 * dimensionScalar, 0.8 * dimensionScalar), new THREE.MeshBasicMaterial({ color: 0xff2e63 }));
-                    lowPolyHullBox.position.y = 1.25;
-                    activeVisualGroup.add(lowPolyHullBox);
-                    vertexBadgeNode.innerText = "Active Vertices: 8 (Potato Mode Primitive Hull)";
-                }
-            } 
-            else {
-                // RENDER PROP CONTAINER STRUCTURES
-                if (optimizationTier === "RTX_HIGH") {
-                    const primaryBaseMesh = currentSubtype === "chest" ? new THREE.BoxGeometry(1.2, 0.9, 0.9) : new THREE.CylinderGeometry(0.4, 0.4, 2.5, 32);
-                    const instantiatedMesh = new THREE.Mesh(primaryBaseMesh, structuralMaterial); instantiatedMesh.position.y = 0.8;
-                    activeVisualGroup.add(instantiatedMesh);
-                    vertexBadgeNode.innerText = "Active Vertices: 1,250 (High Mesh Precision Prop)";
-                } else {
-                    const primaryBaseMesh = currentSubtype === "chest" ? new THREE.BoxGeometry(1.1, 0.8, 0.8) : new THREE.BoxGeometry(0.6, 2.2, 0.6);
-                    const instantiatedMesh = new THREE.Mesh(primaryBaseMesh, new THREE.MeshBasicMaterial({ color: 0xe2e8f0 })); instantiatedMesh.position.y = 0.8;
-                    activeVisualGroup.add(instantiatedMesh);
-                    vertexBadgeNode.innerText = "Active Vertices: 8 (Potato Bound Optimized Prop)";
-                }
-            }
-
-            factoryScene.add(activeVisualGroup);
-            consoleLogNode.innerHTML = `>> Synthesizer Frame: Processed ${currentMode} layout template ['${currentSubtype}']. Profile active optimization level: [${optimizationTier}].`;
+            // Auto sync default filenames to help organize files clearly
+            document.getElementById("prop-filename-input").value = `${subSelector.value}_mod`;
+            updateProceduralMeshPreview();
         }
 
-        // --- 4. BAKE ASSET PROTOCOL GENERATOR FOR NATIVE ENGINE CALLS ---
-        function bakeAssetToGojomaEngineManifest() {
-            const hwTier = document.getElementById("hardware-decimation-tier").value;
-            const absoluteScale = document.getElementById("scale-modifier-slider").value;
+        function updateProceduralMeshPreview() {
+            masterScene.remove(runtimeActivePropMesh);
             
-            // Build absolute JSON data packet architecture ready to be read by Gojoma engine scripts
-            const assetManifestPayloadData = {
-                factoryId: "gojoma_asset_" + currentSubtype + "_" + Date.now(),
-                assetType: currentMode,
-                meshProfile: hwTier,
-                appliedScaleModifier: absoluteScale,
-                boundingHullType: currentMode === "character" ? "CYLINDER_COLLIDER" : "AABB_BOX",
-                compatibilityMode: hwTier === "POTATO_WIN7" ? "LEGACY_WIN7_DIRECTX9" : "MODERN_WEBGL2_RTX"
-            };
+            const selectedItem = document.getElementById("prop-subitem-select").value;
+            const hexColor = parseInt(document.getElementById("prop-color-select").value);
+            const activeMat = new THREE.MeshStandardMaterial({ color: hexColor, roughness: 0.5 });
 
-            consoleLogNode.innerHTML = `<span style='color:var(--accent-green); font-weight:bold;'>>> [ASSET FACTORY PACKAGING SUCCESSFUL]\n>> Manifest Rig Identifier: ${assetManifestPayloadData.factoryId}\n>> Hardware Strategy: ${assetManifestPayloadData.compatibilityMode}\n>> Ready Code Syntax Call: if asset_load eq trigger : import_baked_asset "${assetManifestPayloadData.factoryId}"</span>`;
-        }
-
-        // --- 5. VIEWPORT REALTIME ROTATION DISPLAY TIMER LOOP ---
-        switchArchetypeMode("character"); // Initialize character workflow tracking parameters instantly on startup frames
-
-        function operationalFrameStepTick() {
-            requestAnimationFrame(operationalFrameStepTick);
-            if (activeVisualGroup) {
-                activeVisualGroup.rotation.y += 0.015; // Smooth cinematic turntable rotation display
+            // Generate procedural proxy forms matching target selections
+            if (selectedItem.includes("light") || selectedItem.includes("pole")) {
+                const combinedGroup = new THREE.Group();
+                const poleGeo = new THREE.CylinderGeometry(0.1, 0.1, 3.5, 8);
+                const poleMesh = new THREE.Mesh(poleGeo, activeMat); poleMesh.position.y = 1.75;
+                const headGeo = new THREE.BoxGeometry(0.6, 0.3, 0.8);
+                const headMesh = new THREE.Mesh(headGeo, new THREE.MeshStandardMaterial({color:0xffffff, emissive:0xf59e0b}));
+                headMesh.position.set(0, 3.5, 0.3);
+                combinedGroup.add(poleMesh, headMesh);
+                runtimeActivePropMesh = combinedGroup;
+            } 
+            else if (selectedItem.includes("wall") || selectedItem.includes("barrier") || selectedItem.includes("container")) {
+                runtimeActivePropMesh = new THREE.Mesh(new THREE.BoxGeometry(3.0, 1.8, 0.4), activeMat);
+                runtimeActivePropMesh.position.y = 0.9;
+            } 
+            else if (selectedItem.includes("ground") || selectedItem.includes("surface") || selectedItem.includes("tile")) {
+                runtimeActivePropMesh = new THREE.Mesh(new THREE.BoxGeometry(4.0, 0.1, 4.0), activeMat);
+                runtimeActivePropMesh.position.y = 0.05;
+            } 
+            else if (selectedItem.includes("tree")) {
+                const treeGroup = new THREE.Group();
+                const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.3, 1.5), new THREE.MeshStandardMaterial({color:0x78350f}));
+                trunk.position.y = 0.75;
+                const leaves = new THREE.Mesh(new THREE.ConeGeometry(1.2, 2.5, 8), activeMat);
+                leaves.position.y = 2.5;
+                treeGroup.add(trunk, leaves);
+                runtimeActivePropMesh = treeGroup;
             }
-            factoryRenderer.render(factoryScene, factoryCamera);
+            else {
+                // Stand-in proxy block for basic props
+                runtimeActivePropMesh = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.0, 1.2), activeMat);
+                runtimeActivePropMesh.position.y = 0.5;
+            }
+
+            masterScene.add(runtimeActivePropMesh);
+            document.getElementById("prop-filename-input").value = `${selectedItem}_mod`;
+            document.getElementById("file-indicator").innerText = `Active Output File: ${selectedItem}_mod.gs`;
         }
-        operationalFrameStepTick();
+
+        // --- 4. ISOLATED SYSTEM EXPORTER GENERATOR ---
+        function generateIsolatedFileStream() {
+            const category = document.getElementById("prop-category-select").value;
+            const targetProp = document.getElementById("prop-subitem-select").value;
+            const hexValue = document.getElementById("prop-color-select").value;
+            const fileName = document.getElementById("prop-filename-input").value;
+
+            const codeOutputString = `// =======================================================
+// GOJOMA ENGINE INDEPENDENT COMPONENT REGISTER MODULE
+// SOURCE GENERATOR MATRIX: PROP FACTORY v10.0
+// TARGET COMPILE LINK: ${fileName}.gs
+// =======================================================
+
+define prop_blueprint named "${targetProp}_instance" :
+    set environmental_layer ${category}
+    set mesh_blueprint_form PROCEDURAL_PRIMITIVE
+    set default_material_hex ${hexValue}
+    set baked_shadow_casting TRUE
+    set static_physics_boundary IMPASSABLE_OBSTACLE
+
+// --- SYSTEM COLLISION MATRIX RULES ---
+if hero interact ${targetProp}_instance :
+    execute environmental_sound_hook play_spatial("prop_impact_sub.mp3")`;
+
+            document.getElementById("individual-file-output").value = codeOutputString;
+        }
+
+        function downloadIsolatedFileManifest() {
+            generateIsolatedFileStream();
+            const textContent = document.getElementById("individual-file-output").value;
+            const fileName = document.getElementById("prop-filename-input").value;
+            
+            const fileBlob = new Blob([textContent], { type: "text/plain" });
+            const temporaryAnchorNode = document.createElement("a");
+            temporaryAnchorNode.download = `${fileName}.gs`;
+            temporaryAnchorNode.href = window.URL.createObjectURL(fileBlob);
+            temporaryAnchorNode.click();
+        }
+
+        // Global lifecycle layout steps ticker
+        function frameAnimationLoop() {
+            requestAnimationFrame(frameAnimationLoop);
+            runtimeActivePropMesh.rotation.y += 0.006;
+            engineRenderer.render(masterScene, engineCam);
+        }
+
+        populateSubItems();
+        frameAnimationLoop();
 
         window.addEventListener('resize', () => {
-            const w = window.innerWidth - 400; const h = window.innerHeight - 140;
-            factoryCamera.aspect = w / h; factoryCamera.updateProjectionMatrix();
-            factoryRenderer.setSize(w, h);
+            const w = window.innerWidth - 420; const h = window.innerHeight - 270;
+            engineCam.aspect = w / h; engineCam.updateProjectionMatrix();
+            engineRenderer.setSize(w, h);
         });
     </script>
 </body>
