@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gojoma Language V6.0 Master Manual &amp; Documentation</title>
+    <title>Gojoma Language V9.5 Master Manual</title>
     <style>
         :root {
             --bg-base: #060814;
@@ -15,214 +15,90 @@
             --accent-green: #00ff66;
             --accent-blue: #38bdf8;
             --border: #1e293b;
-            --code-red: #ff4a4a;
         }
-
         body {
-            margin: 0; padding: 0;
-            background-color: var(--bg-base);
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            color: var(--text-main);
+            margin: 0; padding: 0; background-color: var(--bg-base);
+            font-family: 'Segoe UI', system-ui, sans-serif; color: var(--text-main);
             display: flex; height: 100vh; overflow: hidden;
         }
-
-        /* LEFT SIDEBAR NAVIGATION */
         #manual-sidebar {
-            width: 290px; background: #0b0d1a;
-            border-right: 2px solid var(--border);
+            width: 300px; background: #0b0d1a; border-right: 2px solid var(--border);
             display: flex; flex-direction: column; box-sizing: border-box;
         }
-        .sidebar-header {
-            padding: 20px; border-bottom: 1px solid var(--border);
-            background: #04050b;
-        }
-        .sidebar-header h1 { margin: 0; font-size: 16px; color: var(--accent-purple); text-transform: uppercase; letter-spacing: 1px; }
-        .sidebar-header p { margin: 4px 0 0 0; font-size: 11px; color: #64748b; }
-
+        .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); background: #04050b; }
+        .sidebar-header h1 { margin: 0; font-size: 15px; color: var(--accent-purple); text-transform: uppercase; letter-spacing: 1px; }
         .nav-links { flex: 1; overflow-y: auto; padding: 15px 10px; display: flex; flex-direction: column; gap: 4px; }
         .nav-item {
             display: block; padding: 10px 12px; color: var(--text-main); text-decoration: none;
-            font-size: 13px; font-weight: 500; border-radius: 4px; transition: all 0.2s;
-            border-left: 3px solid transparent;
+            font-size: 13px; font-weight: 500; border-radius: 4px; transition: all 0.2s; border-left: 3px solid transparent;
         }
         .nav-item:hover { background: rgba(168, 85, 247, 0.1); color: var(--text-bright); border-left-color: var(--accent-blue); }
         .nav-item.active { background: rgba(168, 85, 247, 0.15); color: var(--text-bright); border-left-color: var(--accent-purple); }
-
-        /* RIGHT DOCUMENTATION CONTENT VIEWER */
         #content-viewer { flex: 1; overflow-y: auto; padding: 40px; box-sizing: border-box; scroll-behavior: smooth; }
         .chapter-section { margin-bottom: 60px; scroll-margin-top: 40px; }
-        
         h2 {
-            font-size: 22px; color: var(--text-bright); margin-top: 0; margin-bottom: 15px;
-            text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--border);
-            padding-bottom: 8px; display: flex; align-items: center; gap: 10px;
+            font-size: 20px; color: var(--text-bright); margin-top: 0; margin-bottom: 15px;
+            text-transform: uppercase; border-bottom: 2px solid var(--border); padding-bottom: 8px;
         }
-        h2 span { color: var(--accent-purple); font-family: monospace; }
-
-        p { margin-top: 0; margin-bottom: 15px; line-height: 1.6; text-align: justify; font-size: 15px; }
-        
-        /* CODE BLOCKS */
-        code { font-family: 'Courier New', monospace; background: #1e293b; color: var(--code-red); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
         pre {
             background-color: var(--bg-code); color: var(--accent-blue); padding: 16px; border-radius: 8px;
-            font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.5; margin: 15px 0;
-            white-space: pre-wrap; border-left: 4px solid var(--accent-green); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+            font-family: monospace; font-size: 13px; line-height: 1.5; margin: 15px 0; white-space: pre-wrap;
+            border-left: 4px solid var(--accent-green);
         }
-
-        /* CALLOUT INFO CARDS */
-        .info-card {
-            background-color: rgba(56, 189, 248, 0.05); border-left: 4px solid var(--accent-blue);
-            padding: 16px; margin: 20px 0; border-radius: 0 8px 8px 0;
-        }
-        .info-card strong { color: var(--accent-blue); display: block; margin-bottom: 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
-
     <div id="manual-sidebar">
         <div class="sidebar-header">
-            <h1>Gojoma Language SDK</h1>
-            <p>V6.0 Complete Core Syntax Manual</p>
+            <h1>Gojoma SDK v9.5</h1>
         </div>
         <div class="nav-links">
-            <a href="#ch-natural" class="nav-item active" onclick="setActiveNav(this)">Ch 1. Dynamic Named Interactions</a>
-            <a href="#ch-cutscene" class="nav-item" onclick="setActiveNav(this)">Ch 2. Cinematic Cutscenes</a>
-            <a href="#ch-sequence" class="nav-item" onclick="setActiveNav(this)">Ch 3. Sequence Interleaving</a>
-            <a href="#ch-player" class="nav-item" onclick="setActiveNav(this)">Ch 4. Player Control Input</a>
-            <a href="#ch-prop" class="nav-item" onclick="setActiveNav(this)">Ch 5. Prop Object Physics</a>
-            <a href="#ch-npc" class="nav-item" onclick="setActiveNav(this)">Ch 6. Crowds &amp; NPC Control</a>
-            <a href="#ch-enemy" class="nav-item" onclick="setActiveNav(this)">Ch 7. Enemy Combat AI</a>
-            <a href="#ch-health" class="nav-item" onclick="setActiveNav(this)">Ch 8. Health &amp; Damage Matrix</a>
-            <a href="#ch-settings" class="nav-item" onclick="setActiveNav(this)">Ch 9. Display &amp; Camera Views</a>
+            <a href="#ch-archetypes" class="nav-item active">Ch 1. Multi-Archetype Profiles</a>
+            <a href="#ch-hijack" class="nav-item">Ch 2. Story Playback Takeover</a>
+            <a href="#ch-placement" class="nav-item">Ch 3. Visual Placement Sync</a>
+            <a href="#ch-logic" class="nav-item">Ch 4. Core Interaction Rules</a>
         </div>
     </div>
 
     <div id="content-viewer">
+        <div id="ch-archetypes" class="chapter-section">
+            <h2>Ch 1. Multi-Archetype Profiles</h2>
+            <p>Define precise configurations for game characters, NPCs, enemies, animals, or specialized melancholic actors used in story-driven narrative arcs.</p>
+            <pre>define asset_profile named "kratos_clone" :
+    set asset_archetype HERO
+    set visual_render_hex 0xffffff
+    set baseline_movement_speed 18
 
-        <div id="ch-natural" class="chapter-section">
-            <h2><span>01 /</span> Dynamic Named Interactions</h2>
-            <p>Game developers can assign custom object identifiers (such as character, enemy, prop, or NPC names) directly within the Lexical Condition Engine. The compiler evaluates proximity, structural changes, and behavioral forks based on natural interaction declarations.</p>
-            <pre>// Dynamic Lifecycle Logic
-if hero health eq 0:
-    hero dies
+define asset_profile named "crying_villager" :
+    set asset_archetype SAD_STORY_ACTOR
+    set visual_render_hex 0x64748b</pre>
+        </div>
 
-// Inter-Entity Melee Damage Calculation
+        <div id="ch-hijack" class="chapter-section">
+            <h2>Ch 2. Story Playback Takeover</h2>
+            <p>The core framework supports swapping player controllers at runtime. This dynamically converts a standard background NPC into the active playable asset for custom timeline sequences.</p>
+            <pre>if narrative_checkpoint eq dramatic_flashback :
+    execute dynamic_controller_takeover target_entity "crying_villager" tracking_time 30.0_sec</pre>
+        </div>
+
+        <div id="ch-placement" class="chapter-section">
+            <h2>Ch 3. Visual Placement Sync</h2>
+            <p>Coordinates parsed dynamically by the interactive canvas engine automatically serialize straight into the master script manifest using precise 3D spatial notation tags.</p>
+            <pre>place asset named "hero" at coordinates(X: 0.00, Y: 1.10, Z: 0.00)
+place asset named "heo" at coordinates(X: 8.54, Y: 1.00, Z: -5.20)</pre>
+        </div>
+
+        <div id="ch-logic" class="chapter-section">
+            <h2>Ch 4. Core Interaction Rules</h2>
+            <p>Calculates combat resolution matrices, environmental interactions, and dialogue execution pipelines based on entity-specific tag variables.</p>
+            <pre>[GAMEPLAY_START]
 if hero punch enemy1:
     let enemy health -10
 
-// Interactive Dialogue Triggers
-if hero interact heo:
-    heo says(hi hero)
-
-// Random Probability Choices (Alternative States)
-if hero attacks heo:
-    heo falls(random: 1- says(sorry) _or_ attack to hero)
-
-// Cross-Entity Damage Counter
-if enemy1 attack hero:
-    let hero health -10</pre>
-        </div>
-
-        <div id="ch-cutscene" class="chapter-section">
-            <h2><span>02 /</span> Cinematic Cutscenes</h2>
-            <p>Cinematic operations temporarily bypass active controller hooks to display linear narrative tracks. When a cutscene block initiates, the runtime engine freezes user movement states and shifts rendering priority to math-driven camera paths.</p>
-            <pre>if current_checkpoint eq zone_boss_room :
-    bypass player_controller_inputs true
-    pan camera_transform look_at boss_mesh_id time 3.5_sec
-    render custom_subtitles_string "TOSKRA: 'This is your final checkpoint!'"
-    play audio_track cinematic_boss_theme</pre>
-        </div>
-
-        <div id="ch-sequence" class="chapter-section">
-            <h2><span>03 /</span> Sequence Interleaving</h2>
-            <p>Interleaving sequences schedules precise blocks of cutscenes and gameplay cycles back-to-back. The Gojoma compiler parses these structural block boundaries to hand off state variables cleanly without frame drops.</p>
-            <pre>[CUTSCENE_START]
-set subtitle "Watch the horizon..."
-pan_camera radius_45 speed_0.5
-[CUTSCENE_END]
-
-[GAMEPLAY_START]
-trigger NPC(spawn:random) count 25
-set player_control native
+if hero kicks car:
+    car gothrough
 [GAMEPLAY_END]</pre>
         </div>
-
-        <div id="ch-player" class="chapter-section">
-            <h2><span>04 /</span> Player Control Input</h2>
-            <p>Player inputs configure specific velocity limits, friction behaviors, and motion curves to simulate distinct action game genres programmatically.</p>
-            <pre>// Spider-Man Style Swing Mechanics Hook
-if player_action eq spiderman_swing :
-    active web_rope_physics
-    add acceleration_y +25
-    set air_friction_coefficient 0.02
-    let camera_fov scale 78
-    trigger swing_motion_blur</pre>
-        </div>
-
-        <div id="ch-prop" class="chapter-section">
-            <h2><span>05 /</span> Prop Object Physics</h2>
-            <p>Props track static or dynamic interactive world models. Passing force conditions updates velocity parameters instantly, applying physical translation impulses across the 3D grid context.</p>
-            <pre>// Physics Translation Example
-if hero kicks car:
-    car gothrough // Applies immediate forward translation impulse</pre>
-        </div>
-
-        <div id="ch-npc" class="chapter-section">
-            <h2><span>06 /</span> Crowds &amp; NPC Control</h2>
-            <p>NPC routines handle lightweight pathfinding and environment population loops. To keep processing optimized on low-end systems or legacy mobile phones, they use simplified vector culling nodes rather than complex raycast sweeps.</p>
-            <pre>// GTA-Style Pedestrian Traffic Controller
-if interaction eq driver_hijack :
-    force exit_actor target_npc_id
-    play hijack_door_force_animation
-    assign player_controller target_vehicle_id
-    set world_wanted_level +1</pre>
-        </div>
-
-        <div id="ch-enemy" class="chapter-section">
-            <h2><span>07 /</span> Enemy Combat AI</h2>
-            <p>Enemy state-machines maintain variable updates based on proximity thresholds. They smoothly transition from tracking logic into aggressive close-quarters melee sweeps once targets enter defined detection zones.</p>
-            <pre>if player_proximity lt detection_radius :
-    switch_state aggressive_pursuit
-    execute pathfinding_target player_coordinates
-    trigger enemy_melee_anim slash_strike</pre>
-        </div>
-
-        <div id="ch-health" class="chapter-section">
-            <h2><span>08 /</span> Health &amp; Damage Matrix</h2>
-            <p>Monitors value modifications for entity health metrics. Dropping below baseline thresholds invokes cleanup functions, drops custom reward elements, or initiates player respawn pipelines.</p>
-            <pre>// Wolverine Mutation Combat &amp; Regeneration Matrix
-if combat_trigger eq claw_strike :
-    play adamantium_slash_animation
-    damage targeted_npc_id -45
-    impact particles_spawn crimson_spark
-    invoke self_healing_factor +5_hp_per_sec</pre>
-        </div>
-
-        <div id="ch-settings" class="chapter-section">
-            <h2><span>09 /</span> Display &amp; Camera Views</h2>
-            <p>Updates camera boundaries dynamically, enabling runtime toggles between close-up First-Person Views (FPV) and wide-angle Third-Person Views (TPV).</p>
-            <pre>if camera_view_profile eq FIRST_PERSON :
-    lock_camera_to_bone head_joint
-    set camera_fov 90
-    
-if camera_view_profile eq THIRD_PERSON :
-    offset_camera distance_z -15 distance_y +6
-    set look_at player_mesh_center</pre>
-
-            <div class="info-card">
-                <strong>Hardware Optimization Tip:</strong> Using First-Person profiles lowers drawing overhead because geometry passing behind the immediate viewport plane is automatically dropped from the active render pass.
-            </div>
-        </div>
-
     </div>
-
-    <script>
-        // Smooth Active Class Navigation Switcher
-        function setActiveNav(selectedLinkNode) {
-            const currentActive = document.querySelector('.nav-item.active');
-            if (currentActive) currentActive.classList.remove('active');
-            selectedLinkNode.classList.add('active');
-        }
-    </script>
 </body>
 </html>
