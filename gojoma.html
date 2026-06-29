@@ -3,259 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gojoma Language Architecture Specification &amp; Manual</title>
+    <title>Gojoma Language V6.0 Master Manual &amp; Documentation</title>
     <style>
         :root {
-            --bg-main: #0b0f19;
-            --bg-card: #131a26;
+            --bg-base: #060814;
+            --bg-card: #0f1224;
+            --bg-code: #020308;
             --text-main: #cbd5e1;
             --text-bright: #ffffff;
             --accent-purple: #a855f7;
             --accent-green: #00ff66;
             --accent-blue: #38bdf8;
-            --border-color: #1e293b;
+            --border: #1e293b;
             --code-red: #ff4a4a;
         }
 
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
+            background-color: var(--bg-base);
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             color: var(--text-main);
-            background-color: var(--bg-main);
-            line-height: 1.6;
-            font-size: 16px;
+            display: flex; height: 100vh; overflow: hidden;
         }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 40px 20px;
+        /* LEFT SIDEBAR NAVIGATION */
+        #manual-sidebar {
+            width: 290px; background: #0b0d1a;
+            border-right: 2px solid var(--border);
+            display: flex; flex-direction: column; box-sizing: border-box;
         }
+        .sidebar-header {
+            padding: 20px; border-bottom: 1px solid var(--border);
+            background: #04050b;
+        }
+        .sidebar-header h1 { margin: 0; font-size: 16px; color: var(--accent-purple); text-transform: uppercase; letter-spacing: 1px; }
+        .sidebar-header p { margin: 4px 0 0 0; font-size: 11px; color: #64748b; }
 
-        /* TYPOGRAPHY */
-        h1 {
-            font-size: 28px;
-            color: var(--text-bright);
-            margin-top: 0;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 3px solid var(--accent-purple);
-            padding-bottom: 15px;
+        .nav-links { flex: 1; overflow-y: auto; padding: 15px 10px; display: flex; flex-direction: column; gap: 4px; }
+        .nav-item {
+            display: block; padding: 10px 12px; color: var(--text-main); text-decoration: none;
+            font-size: 13px; font-weight: 500; border-radius: 4px; transition: all 0.2s;
+            border-left: 3px solid transparent;
         }
+        .nav-item:hover { background: rgba(168, 85, 247, 0.1); color: var(--text-bright); border-left-color: var(--accent-blue); }
+        .nav-item.active { background: rgba(168, 85, 247, 0.15); color: var(--text-bright); border-left-color: var(--accent-purple); }
+
+        /* RIGHT DOCUMENTATION CONTENT VIEWER */
+        #content-viewer { flex: 1; overflow-y: auto; padding: 40px; box-sizing: border-box; scroll-behavior: smooth; }
+        .chapter-section { margin-bottom: 60px; scroll-margin-top: 40px; }
         
         h2 {
-            font-size: 20px;
-            color: var(--accent-purple);
-            margin-top: 40px;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-left: 4px solid var(--accent-purple);
-            padding-left: 12px;
+            font-size: 22px; color: var(--text-bright); margin-top: 0; margin-bottom: 15px;
+            text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--border);
+            padding-bottom: 8px; display: flex; align-items: center; gap: 10px;
         }
+        h2 span { color: var(--accent-purple); font-family: monospace; }
 
-        h3 {
-            font-size: 16px;
-            color: var(--text-bright);
-            margin-top: 25px;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
-        p {
-            margin-top: 0;
-            margin-bottom: 15px;
-            text-align: justify;
-        }
-
-        strong {
-            color: var(--text-bright);
-        }
-
-        /* CODE AND TECHNICAL HIGHLIGHTS */
-        code {
-            font-family: 'Courier New', Courier, monospace;
-            background-color: #1e293b;
-            color: var(--code-red);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
+        p { margin-top: 0; margin-bottom: 15px; line-height: 1.6; text-align: justify; font-size: 15px; }
+        
+        /* CODE BLOCKS */
+        code { font-family: 'Courier New', monospace; background: #1e293b; color: var(--code-red); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
         pre {
-            background-color: #020617;
-            color: var(--accent-blue);
-            padding: 16px;
-            border-radius: 8px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 14px;
-            line-height: 1.5;
-            margin-top: 10px;
-            margin-bottom: 20px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            border-left: 4px solid var(--accent-green);
-            overflow-x: auto;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+            background-color: var(--bg-code); color: var(--accent-blue); padding: 16px; border-radius: 8px;
+            font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.5; margin: 15px 0;
+            white-space: pre-wrap; border-left: 4px solid var(--accent-green); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
         }
 
-        /* TABLES MAPPINGS */
-        .table-responsive {
-            overflow-x: auto;
-            margin-top: 15px;
-            margin-bottom: 25px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
+        /* CALLOUT INFO CARDS */
+        .info-card {
+            background-color: rgba(56, 189, 248, 0.05); border-left: 4px solid var(--accent-blue);
+            padding: 16px; margin: 20px 0; border-radius: 0 8px 8px 0;
         }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 15px;
-            text-align: left;
-            background-color: var(--bg-card);
-        }
-
-        th {
-            background-color: #0f111a;
-            color: var(--text-bright);
-            font-weight: bold;
-            padding: 12px 15px;
-            border-bottom: 2px solid var(--border-color);
-            text-transform: uppercase;
-            font-size: 13px;
-            letter-spacing: 0.5px;
-        }
-
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        tr:nth-child(even) {
-            background-color: rgba(255, 255, 255, 0.02);
-        }
-
-        /* CALLOUT INFO BOXES */
-        .info-callout-card {
-            background-color: rgba(168, 85, 247, 0.05);
-            border-left: 4px solid var(--accent-purple);
-            padding: 16px;
-            margin-top: 20px;
-            margin-bottom: 20px;
-            border-radius: 0 8px 8px 0;
-        }
-
-        .info-callout-card strong {
-            color: #c084fc;
-            display: block;
-            margin-bottom: 6px;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+        .info-card strong { color: var(--accent-blue); display: block; margin-bottom: 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Gojoma Language V4.0 Manual</h1>
-        <p><strong>Official Technical Reference Guide &amp; Runtime Interpretation Rules.</strong> Gojoma Script is a custom high-level, human-readable structural scripting engine paradigm, optimized directly to compile complex execution hooks within the browser context and dynamic mobile environments.</p>
+    <div id="manual-sidebar">
+        <div class="sidebar-header">
+            <h1>Gojoma Language SDK</h1>
+            <p>V6.0 Complete Core Syntax Manual</p>
+        </div>
+        <div class="nav-links">
+            <a href="#ch-natural" class="nav-item active" onclick="setActiveNav(this)">Ch 1. Dynamic Named Interactions</a>
+            <a href="#ch-cutscene" class="nav-item" onclick="setActiveNav(this)">Ch 2. Cinematic Cutscenes</a>
+            <a href="#ch-sequence" class="nav-item" onclick="setActiveNav(this)">Ch 3. Sequence Interleaving</a>
+            <a href="#ch-player" class="nav-item" onclick="setActiveNav(this)">Ch 4. Player Control Input</a>
+            <a href="#ch-prop" class="nav-item" onclick="setActiveNav(this)">Ch 5. Prop Object Physics</a>
+            <a href="#ch-npc" class="nav-item" onclick="setActiveNav(this)">Ch 6. Crowds &amp; NPC Control</a>
+            <a href="#ch-enemy" class="nav-item" onclick="setActiveNav(this)">Ch 7. Enemy Combat AI</a>
+            <a href="#ch-health" class="nav-item" onclick="setActiveNav(this)">Ch 8. Health &amp; Damage Matrix</a>
+            <a href="#ch-settings" class="nav-item" onclick="setActiveNav(this)">Ch 9. Display &amp; Camera Views</a>
+        </div>
+    </div>
 
-        <h2>1. Core Structural Syntax Rules</h2>
-        <p>Gojoma Script operates purely on a simple matrix pipeline of conditional statements, evaluation flags, and target execution operations. Each instruction sequence runs text evaluation loops across clear variables and trigger components.</p>
-        
-        <h3>Syntax Grammar Format</h3>
-        <pre>if [target_register] [evaluation_operator] [parameter_condition] : [action_directive] [property] [modification_value]</pre>
+    <div id="content-viewer">
 
-        <div class="table-responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Operator Element</th>
-                        <th>Alternative Codes</th>
-                        <th>Functional Description</th>
-                        <th>Usage Context Example</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><code>eq</code></td>
-                        <td>==, equals</td>
-                        <td>Check equity equality limits</td>
-                        <td>if state eq player_run</td>
-                    </tr>
-                    <tr>
-                        <td><code>lt</code></td>
-                        <td>&lt;</td>
-                        <td>Evaluate less-than boundaries</td>
-                        <td>if health lt 20</td>
-                    </tr>
-                    <tr>
-                        <td><code>gt</code></td>
-                        <td>&gt;</td>
-                        <td>Evaluate greater-than limits</td>
-                        <td>if energy gt 80</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div id="ch-natural" class="chapter-section">
+            <h2><span>01 /</span> Dynamic Named Interactions</h2>
+            <p>Game developers can assign custom object identifiers (such as character, enemy, prop, or NPC names) directly within the Lexical Condition Engine. The compiler evaluates proximity, structural changes, and behavioral forks based on natural interaction declarations.</p>
+            <pre>// Dynamic Lifecycle Logic
+if hero health eq 0:
+    hero dies
+
+// Inter-Entity Melee Damage Calculation
+if hero punch enemy1:
+    let enemy health -10
+
+// Interactive Dialogue Triggers
+if hero interact heo:
+    heo says(hi hero)
+
+// Random Probability Choices (Alternative States)
+if hero attacks heo:
+    heo falls(random: 1- says(sorry) _or_ attack to hero)
+
+// Cross-Entity Damage Counter
+if enemy1 attack hero:
+    let hero health -10</pre>
         </div>
 
-        <h2>2. Multi-Genre AAA Game Logic Presets</h2>
-        <p>Using these rules and blueprints, you can programmatically trigger modern cinematic, high-action mechanics.</p>
+        <div id="ch-cutscene" class="chapter-section">
+            <h2><span>02 /</span> Cinematic Cutscenes</h2>
+            <p>Cinematic operations temporarily bypass active controller hooks to display linear narrative tracks. When a cutscene block initiates, the runtime engine freezes user movement states and shifts rendering priority to math-driven camera paths.</p>
+            <pre>if current_checkpoint eq zone_boss_room :
+    bypass player_controller_inputs true
+    pan camera_transform look_at boss_mesh_id time 3.5_sec
+    render custom_subtitles_string "TOSKRA: 'This is your final checkpoint!'"
+    play audio_track cinematic_boss_theme</pre>
+        </div>
 
-        <h3>A. Spider-Man Swing Mechanics Hook</h3>
-        <p>Raycasting vector layers and velocity curves are adjusted to maintain web-swinging and swing torque physics models for Spider-Man games:</p>
-        <pre>if player_action eq spiderman_swing :
+        <div id="ch-sequence" class="chapter-section">
+            <h2><span>03 /</span> Sequence Interleaving</h2>
+            <p>Interleaving sequences schedules precise blocks of cutscenes and gameplay cycles back-to-back. The Gojoma compiler parses these structural block boundaries to hand off state variables cleanly without frame drops.</p>
+            <pre>[CUTSCENE_START]
+set subtitle "Watch the horizon..."
+pan_camera radius_45 speed_0.5
+[CUTSCENE_END]
+
+[GAMEPLAY_START]
+trigger NPC(spawn:random) count 25
+set player_control native
+[GAMEPLAY_END]</pre>
+        </div>
+
+        <div id="ch-player" class="chapter-section">
+            <h2><span>04 /</span> Player Control Input</h2>
+            <p>Player inputs configure specific velocity limits, friction behaviors, and motion curves to simulate distinct action game genres programmatically.</p>
+            <pre>// Spider-Man Style Swing Mechanics Hook
+if player_action eq spiderman_swing :
     active web_rope_physics
     add acceleration_y +25
     set air_friction_coefficient 0.02
     let camera_fov scale 78
     trigger swing_motion_blur</pre>
+        </div>
 
-        <h3>B. Wolverine Mutant Combat &amp; Regeneration Matrix</h3>
-        <p>Automatic continuous healing logic matrix and high-impact melee mesh damage controls for Wolverine character designs:</p>
-        <pre>if combat_trigger eq claw_strike :
+        <div id="ch-prop" class="chapter-section">
+            <h2><span>05 /</span> Prop Object Physics</h2>
+            <p>Props track static or dynamic interactive world models. Passing force conditions updates velocity parameters instantly, applying physical translation impulses across the 3D grid context.</p>
+            <pre>// Physics Translation Example
+if hero kicks car:
+    car gothrough // Applies immediate forward translation impulse</pre>
+        </div>
+
+        <div id="ch-npc" class="chapter-section">
+            <h2><span>06 /</span> Crowds &amp; NPC Control</h2>
+            <p>NPC routines handle lightweight pathfinding and environment population loops. To keep processing optimized on low-end systems or legacy mobile phones, they use simplified vector culling nodes rather than complex raycast sweeps.</p>
+            <pre>// GTA-Style Pedestrian Traffic Controller
+if interaction eq driver_hijack :
+    force exit_actor target_npc_id
+    play hijack_door_force_animation
+    assign player_controller target_vehicle_id
+    set world_wanted_level +1</pre>
+        </div>
+
+        <div id="ch-enemy" class="chapter-section">
+            <h2><span>07 /</span> Enemy Combat AI</h2>
+            <p>Enemy state-machines maintain variable updates based on proximity thresholds. They smoothly transition from tracking logic into aggressive close-quarters melee sweeps once targets enter defined detection zones.</p>
+            <pre>if player_proximity lt detection_radius :
+    switch_state aggressive_pursuit
+    execute pathfinding_target player_coordinates
+    trigger enemy_melee_anim slash_strike</pre>
+        </div>
+
+        <div id="ch-health" class="chapter-section">
+            <h2><span>08 /</span> Health &amp; Damage Matrix</h2>
+            <p>Monitors value modifications for entity health metrics. Dropping below baseline thresholds invokes cleanup functions, drops custom reward elements, or initiates player respawn pipelines.</p>
+            <pre>// Wolverine Mutation Combat &amp; Regeneration Matrix
+if combat_trigger eq claw_strike :
     play adamantium_slash_animation
     damage targeted_npc_id -45
     impact particles_spawn crimson_spark
     invoke self_healing_factor +5_hp_per_sec</pre>
-
-        <h3>C. GTA Open-World Character Traffic Interaction</h3>
-        <p>Dynamic pedestrian tracking controllers, system allocations, and target asset value manipulation layers for GTA-style systems:</p>
-        <pre>if interaction eq driver_hijack :
-    force exit_actor target_npc_id
-    play hijack_door_force_animation
-    lock character_bone inside_vehicle_slot
-    assign player_controller target_vehicle_id
-    set world_wanted_level +1</pre>
-
-        <div class="info-callout-card">
-            <strong>Optimization Pro-Tip for Laptops:</strong> Always use <code>NPC_CIVILIAN</code> profile hooks to bypass automatic processing nodes when generating GTA-style background crowds to keep draw calls low.
         </div>
 
-        <h2>3. Cutscene Frame Sequencer Scripting</h2>
-        <p>To execute story mode cutscenes, absolute scene cameras, pan target indices, and linear dialogue pipelines are processed by freezing manual character controllers:</p>
-        <pre>if current_checkpoint eq zone_boss_room :
-    bypass player_controller_inputs true
-    pan camera_transform look_at boss_mesh_id time 3.5_sec
-    render custom_subtitles_string "TOSKRA: 'This is your final checkpoint!'"
-    play audio_track cinematic_boss_theme</pre>
+        <div id="ch-settings" class="chapter-section">
+            <h2><span>09 /</span> Display &amp; Camera Views</h2>
+            <p>Updates camera boundaries dynamically, enabling runtime toggles between close-up First-Person Views (FPV) and wide-angle Third-Person Views (TPV).</p>
+            <pre>if camera_view_profile eq FIRST_PERSON :
+    lock_camera_to_bone head_joint
+    set camera_fov 90
+    
+if camera_view_profile eq THIRD_PERSON :
+    offset_camera distance_z -15 distance_y +6
+    set look_at player_mesh_center</pre>
 
-        <h2>4. Cross-Platform Hardware Profiles Matrix</h2>
-        <p>Optimization variable configuration mapping commands to balance consistent framerates across systems ranging from low-end platforms (Potato PCs / Older Phones) to modern RTX-powered heavy hardware platforms:</p>
-        <pre>if hardware_detect eq POTATO_PC :
-    set pixel_ratio_sample 0.65
-    strip mesh_poly_detail LOW_COMPLEXITY
-    override disable_global_shadows true
-    guarantee dynamic_framerate 60_fps</pre>
+            <div class="info-card">
+                <strong>Hardware Optimization Tip:</strong> Using First-Person profiles lowers drawing overhead because geometry passing behind the immediate viewport plane is automatically dropped from the active render pass.
+            </div>
+        </div>
+
     </div>
 
+    <script>
+        // Smooth Active Class Navigation Switcher
+        function setActiveNav(selectedLinkNode) {
+            const currentActive = document.querySelector('.nav-item.active');
+            if (currentActive) currentActive.classList.remove('active');
+            selectedLinkNode.classList.add('active');
+        }
+    </script>
 </body>
 </html>
