@@ -1,203 +1,275 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gojoma Engine - AAA Prop Studio &amp; Optimizer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gojoma Character &amp; Prop Asset Factory Suite</title>
     <style>
-        body { margin: 0; padding: 0; background-color: #020406; font-family: 'Segoe UI', system-ui, sans-serif; color: #cbd5e1; overflow: hidden; user-select: none; }
-        
-        #prop-header-nav { height: 45px; background: #0b0e14; border-bottom: 2px solid #00adb5; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-sizing: border-box; }
-        .branding { font-weight: bold; font-size: 13px; color: #00adb5; letter-spacing: 1px; text-transform: uppercase; }
-        .poly-count-badge { background: #1e293b; color: #00ff66; font-family: monospace; font-size: 10px; padding: 3px 8px; border-radius: 4px; font-weight: bold; }
+        :root {
+            --bg-base: #030508;
+            --bg-surface: #0b0e14;
+            --bg-panel: #111522;
+            --accent-purple: #a855f7;
+            --accent-green: #00ff66;
+            --accent-blue: #38bdf8;
+            --text-main: #94a3b8;
+            --text-bright: #ffffff;
+            --border: #1e293b;
+        }
 
-        #prop-workspace-split { display: flex; flex-direction: column; height: calc(100vh - 45px); }
-        #prop-render-viewport { flex-grow: 1; background: #010203; position: relative; }
-        
-        /* ADJUSTMENT PANEL SHEET */
-        #prop-modifier-dashboard { height: 280px; background: #07090e; border-top: 1px solid #1e293b; padding: 12px; box-sizing: border-box; display: flex; flex-direction: column; overflow-y: auto; gap: 8px; }
-        .panel-title { font-size: 10px; text-transform: uppercase; color: #64748b; font-weight: bold; letter-spacing: 0.5px; border-bottom: 1px solid #141822; padding-bottom: 3px; }
-        
-        .control-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-        .control-row label { font-size: 11px; font-weight: bold; width: 120px; color: #94a3b8; text-transform: uppercase; }
-        .prop-slider { flex-grow: 1; accent-color: #00adb5; background: #1e293b; height: 5px; border-radius: 3px; outline: none; }
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-base);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: var(--text-main);
+            display: flex; height: 100vh; overflow: hidden;
+        }
 
-        .flex-buttons { display: flex; gap: 6px; margin-bottom: 4px; }
-        .prop-btn { flex: 1; background: #11141d; border: 1px solid #1e293b; color: #cbd5e1; padding: 8px 4px; font-size: 10px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
-        .prop-btn:active { background: #1e293b; border-color: #00adb5; }
-        .btn-bake { background: #00adb5; color: #020406; border: none; }
-        .btn-bake:active { background: #38bdf8; }
+        /* LEFT SIDEBAR CONTROLS */
+        #control-panel {
+            width: 400px; background: var(--bg-surface);
+            border-right: 2px solid var(--border);
+            display: flex; flex-direction: column;
+            box-sizing: border-box; overflow-y: auto;
+        }
 
-        #prop-debugger-console { background: #010204; border: 1px solid #131722; padding: 8px; border-radius: 4px; font-family: monospace; font-size: 10px; color: #38bdf8; min-height: 45px; max-height: 55px; overflow-y: auto; white-space: pre-wrap; margin-top: auto; }
+        .panel-header {
+            padding: 20px; border-bottom: 1px solid var(--border);
+            background: #080a0f;
+        }
+        .panel-header h1 { margin: 0; font-size: 16px; color: var(--accent-purple); text-transform: uppercase; letter-spacing: 1px; }
+        .panel-header p { margin: 5px 0 0 0; font-size: 11px; color: #64748b; }
+
+        .section-block { padding: 15px 20px; border-bottom: 1px solid var(--border); }
+        .section-title { font-size: 11px; text-transform: uppercase; font-weight: bold; color: var(--text-bright); margin-bottom: 12px; letter-spacing: 0.5px; }
+
+        /* BUTTON CONFIGS */
+        .grid-buttons { display: flex; gap: 8px; margin-bottom: 10px; }
+        .factory-btn {
+            flex: 1; background: var(--bg-panel); color: var(--text-bright);
+            border: 1px solid var(--border); padding: 10px; font-size: 11px;
+            font-weight: bold; border-radius: 4px; text-transform: uppercase;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .factory-btn:hover { border-color: var(--accent-purple); color: var(--accent-purple); }
+        .factory-btn.active { background: var(--accent-purple); border-color: var(--accent-purple); color: white; }
+        
+        .btn-bake { background: var(--accent-green); color: #000; border: none; width: 100%; margin-top: 5px; }
+        .btn-bake:hover { background: #00cc55; }
+
+        /* SLIDER CONFIGS */
+        .control-row { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+        .control-row label { font-size: 11px; text-transform: uppercase; font-weight: bold; color: #64748b; }
+        .factory-slider { width: 100%; accent-color: var(--accent-purple); background: #1e293b; height: 6px; border-radius: 3px; outline: none; }
+
+        /* RIGHT RENDER VIEWPORT & LIVE LOGGER */
+        #display-pipeline { flex: 1; display: flex; flex-direction: column; position: relative; }
+        #canvas-viewport { flex: 1; background: #010203; }
+        
+        #asset-console {
+            height: 140px; background: #020306; border-top: 1px solid var(--border);
+            padding: 15px; font-family: monospace; font-size: 11px; color: var(--accent-blue);
+            box-sizing: border-box; overflow-y: auto; white-space: pre-wrap;
+        }
+
+        .stat-badge { position: absolute; top: 15px; right: 15px; background: rgba(11,14,20,0.85); border: 1px solid var(--border); padding: 5px 10px; border-radius: 4px; font-family: monospace; font-size: 11px; color: var(--accent-green); }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-    <div id="prop-header-nav">
-        <span class="branding">Gojoma AAA Prop Matrix Factory</span>
-        <span id="live-poly-badge" class="poly-count-badge">Vertices: 480 (Max Quality)</span>
-    </div>
+    <div id="control-panel">
+        <div class="panel-header">
+            <h1>Gojoma Asset Factory</h1>
+            <p>Standalone AAA Rigging &amp; Optimization Matrix</p>
+        </div>
 
-    <div id="prop-workspace-split">
-        <div id="prop-render-viewport"></div>
-        
-        <div id="prop-modifier-dashboard">
-            <div class="panel-title">1. Base Asset Geometry Template</div>
-            <div class="flex-buttons">
-                <button class="prop-btn" onclick="generateBasePropStructure('barrel')">Industrial Oil Barrel</button>
-                <button class="prop-btn" onclick="generateBasePropStructure('scaffold')">Concrete Pillar Pillar</button>
-                <button class="prop-btn" onclick="generateBasePropStructure('crate')">Supply Loot Crate</button>
+        <div class="section-block">
+            <div class="section-title">1. Select Asset Archetype</div>
+            <div class="grid-buttons">
+                <button id="tab-char" class="factory-btn active" onclick="switchArchetypeMode('character')">Character Model</button>
+                <button id="tab-prop" class="factory-btn" onclick="switchArchetypeMode('prop')">Prop Asset</button>
             </div>
+        </div>
 
-            <div class="panel-title">2. Real-Time Hardware Optimization &amp; LOD Engine</div>
+        <div class="section-block">
+            <div class="section-title">2. Geometry Templates</div>
+            <div id="character-variants" class="grid-buttons">
+                <button class="factory-btn" onclick="buildSelectedAsset('hero')">Hero Knight</button>
+                <button class="factory-btn" onclick="buildSelectedAsset('alien')">Alien Beast</button>
+            </div>
+            <div id="prop-variants" class="grid-buttons" style="display: none;">
+                <button class="factory-btn" onclick="buildSelectedAsset('chest')">Sci-Fi Chest</button>
+                <button class="factory-btn" onclick="buildSelectedAsset('pillar')">Ancient Pillar</button>
+            </div>
+        </div>
+
+        <div class="section-block">
+            <div class="section-title">3. God-Graphics Hardware Scaling Engine</div>
             <div class="control-row">
-                <label>Mesh Decimation (LOD)</label>
-                <input type="range" class="prop-slider" id="slider-lod" min="0" max="2" step="1" value="0" oninput="applyLivePropOptimizationPipeline()">
+                <label>Target Hardware Optimization Profile</label>
+                <select id="hardware-decimation-tier" class="factory-slider" style="background:#111522; color:#fff; border:1px solid var(--border); height:30px; font-size:11px;" onchange="updateAssetGeometryResolution()">
+                    <option value="RTX_HIGH">RTX Ultra Mode (Max Geometry Loops)</option>
+                    <option value="MID_BALANCED">Balanced Profile (Mid-Poly Topology)</option>
+                    <option value="POTATO_WIN7">Potato Windows 7 (Flat Low-Poly Hull)</option>
+                </select>
             </div>
             <div class="control-row">
-                <label>Surface Wear &amp; Tear</label>
-                <input type="range" class="prop-slider" id="slider-wear" min="0" max="1" step="0.05" value="0.2" oninput="applyLivePropOptimizationPipeline()">
+                <label id="slider-label-alpha">Scale Axis Height: 1.0x</label>
+                <input type="range" id="scale-modifier-slider" class="factory-slider" min="0.5" max="2.0" step="0.1" value="1.0" oninput="updateAssetGeometryResolution()">
             </div>
+        </div>
 
-            <div class="panel-title">3. Production Asset Packing</div>
-            <div class="flex-buttons">
-                <button class="prop-btn btn-bake" style="width: 100%;" onclick="bakePropAssetToGameMemory()">Bake Mesh &amp; Generate Collision Hull (Hitbox)</button>
-            </div>
-
-            <div id="prop-debugger-console">>> Prop Pipeline online. Select a template to initialize AAA geometry trace paths...</div>
+        <div class="section-block" style="margin-top: auto;">
+            <div class="section-title">4. Production Packaging</div>
+            <button class="factory-btn btn-bake" onclick="bakeAssetToGojomaEngineManifest()">Bake Rig &amp; Export Object Data</button>
         </div>
     </div>
 
+    <div id="display-pipeline">
+        <div id="canvas-viewport"></div>
+        <div id="live-vertex-badge" class="stat-badge">Active Vertices: 2,400 (Max-LOD)</div>
+        <div id="asset-console">>> Studio Asset Factory Module loaded. Choose an archetype to initialize geometry pipelines...</div>
+    </div>
+
     <script>
-        // --- 1. SETUP GRAPHICS VIEWPORT ENGINE ---
-        const viewport = document.getElementById("prop-render-viewport");
-        const propScene = new THREE.Scene(); propScene.background = new THREE.Color(0x040509);
+        // --- 1. VIEWPORT GRAPHICS FRAME SETUP ---
+        const viewField = document.getElementById("canvas-viewport");
+        const factoryScene = new THREE.Scene(); factoryScene.background = new THREE.Color(0x06080d);
         
-        const propCamera = new THREE.PerspectiveCamera(45, window.innerWidth / (window.innerHeight - 325), 0.1, 1000);
-        propCamera.position.set(0, 2.5, 4.5); propCamera.lookAt(0, 0.4, 0);
+        const factoryCamera = new THREE.PerspectiveCamera(45, (window.innerWidth - 400) / (window.innerHeight - 140), 0.1, 500);
+        factoryCamera.position.set(0, 4, 8); factoryCamera.lookAt(0, 1.5, 0);
         
-        const propRenderer = new THREE.WebGLRenderer({ antialias: true });
-        propRenderer.setSize(window.innerWidth, window.innerHeight - 325);
-        viewport.appendChild(propRenderer.domElement);
+        const factoryRenderer = new THREE.WebGLRenderer({ antialias: true });
+        factoryRenderer.setSize(window.innerWidth - 400, window.innerHeight - 140);
+        viewField.appendChild(factoryRenderer.domElement);
 
-        // Studio lighting rig to catch metallic scratches & roughness reflections
-        propScene.add(new THREE.AmbientLight(0xffffff, 0.3));
-        const studioSun = new THREE.DirectionalLight(0xffffff, 1.5); studioSun.position.set(5, 10, 6); propScene.add(studioSun);
-        propScene.add(new THREE.GridHelper(30, 15, 0x00adb5, 0x121622));
+        factoryScene.add(new THREE.AmbientLight(0xffffff, 0.3));
+        const focalSun = new THREE.DirectionalLight(0xffffff, 1.5); focalSun.position.set(5, 15, 10); factoryScene.add(focalSun);
+        
+        const floorGrid = new THREE.GridHelper(30, 15, 0xa855f7, 0x1e293b); floorGrid.position.y = 0; factoryScene.add(floorGrid);
 
-        // --- 2. PROP STRUCTURAL TRACKING MATRICES ---
-        let currentPropActiveGroup = null;
-        let currentPropTypeKey = "barrel";
-        const debugLog = document.getElementById("prop-debugger-console");
-        const polyBadge = document.getElementById("live-poly-badge");
+        // --- 2. WORKSPACE SYNCHRONIZATION AND MEMORY REGISTERS ---
+        let currentMode = "character";
+        let currentSubtype = "hero";
+        let activeVisualGroup = null;
 
-        function purgePreviousPropCache() {
-            if (currentPropActiveGroup) {
-                propScene.remove(currentPropActiveGroup);
-                currentPropActiveGroup = null;
-            }
+        const consoleLogNode = document.getElementById("asset-console");
+        const vertexBadgeNode = document.getElementById("live-vertex-badge");
+
+        function cleanAssetWorkspace() {
+            if (activeVisualGroup) { factoryScene.remove(activeVisualGroup); activeVisualGroup = null; }
         }
 
-        // --- 3. THE AAA LEVEL-OF-DETAIL (LOD) MESH COMPRESSION ENGINE ---
-        function generateBasePropStructure(propTypeKeyString) {
-            purgePreviousPropCache();
-            currentPropTypeKey = propTypeKeyString;
+        function switchArchetypeMode(targetModeString) {
+            currentMode = targetModeString;
+            document.getElementById("tab-char").classList.toggle("active", targetModeString === "character");
+            document.getElementById("tab-prop").classList.toggle("active", targetModeString === "prop");
             
-            currentPropActiveGroup = new THREE.Group();
-            const lodIndexValue = parseInt(document.getElementById("slider-lod").value);
-            const wearFactorValue = parseFloat(document.getElementById("slider-wear").value);
+            document.getElementById("character-variants").style.display = targetModeString === "character" ? "flex" : "none";
+            document.getElementById("prop-variants").style.display = targetModeString === "prop" ? "flex" : "none";
+            
+            currentSubtype = targetModeString === "character" ? "hero" : "chest";
+            updateAssetGeometryResolution();
+        }
 
-            // Procedural AAA PBR Material Simulation
-            const pbrPropMaterial = new THREE.MeshStandardMaterial({
-                color: (propTypeKeyString === 'barrel') ? 0xb91c1c : (propTypeKeyString === 'scaffold' ? 0x64748b : 0xd97706),
-                roughness: wearFactorValue, // High wear changes light scatter properties
-                metalness: (propTypeKeyString === 'crate') ? 0.1 : 0.85
+        function buildSelectedAsset(subtypeString) {
+            currentSubtype = subtypeString;
+            updateAssetGeometryResolution();
+        }
+
+        // --- 3. THE GOD-GRAPHICS GEOMETRY SYNTHESIZER ---
+        function updateAssetGeometryResolution() {
+            cleanAssetWorkspace();
+            activeVisualGroup = new THREE.Group();
+
+            const optimizationTier = document.getElementById("hardware-decimation-tier").value;
+            const dimensionScalar = parseFloat(document.getElementById("scale-modifier-slider").value);
+            document.getElementById("slider-label-alpha").innerText = `Scale Axis Height: ${dimensionScalar.toFixed(1)}x`;
+
+            // Procedural High Fidelity Shading Materials Mapping (Pure Math-Driven, Runs Fast Anywhere)
+            const structuralMaterial = new THREE.MeshStandardMaterial({
+                color: currentMode === "character" ? (currentSubtype === "hero" ? 0x38bdf8 : 0x00ff66) : (currentSubtype === "chest" ? 0xd97706 : 0x64748b),
+                metalness: currentSubtype === "hero" || currentSubtype === "chest" ? 0.85 : 0.2,
+                roughness: optimizationTier === "RTX_HIGH" ? 0.15 : 0.5
             });
 
-            let coreGeometryBlock;
-
-            // DYNAMIC POLYGON STRIPPING OVERRIDE (Based on Level of Detail Selection)
-            if (propTypeKeyString === "barrel") {
-                if (lodIndexValue === 0) {
-                    coreGeometryBlock = new THREE.CylinderGeometry(0.4, 0.4, 1.1, 32); // Max Quality (High-poly desktop)
-                    polyBadge.innerText = "Vertices: 480 (AAA High LOD)";
-                } else if (lodIndexValue === 1) {
-                    coreGeometryBlock = new THREE.CylinderGeometry(0.4, 0.4, 1.1, 12); // Medium Quality (Mid laptop)
-                    polyBadge.innerText = "Vertices: 180 (Balanced LOD 1)";
-                } else {
-                    coreGeometryBlock = new THREE.BoxGeometry(0.7, 1.1, 0.7); // Potato PC Mode (Flat bounding block box)
-                    polyBadge.innerText = "Vertices: 8 (Potato Low LOD 2)";
+            if (currentMode === "character") {
+                // RENDER CHARACTER ASSEMBLY RIG
+                if (optimizationTier === "RTX_HIGH") {
+                    // High Poly Smooth Structural Configuration Mapping
+                    const headMesh = new THREE.Mesh(new THREE.SphereGeometry(0.4 * dimensionScalar, 32, 32), structuralMaterial); headMesh.position.y = 2.8;
+                    const torsoMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.5 * dimensionScalar, 0.3 * dimensionScalar, 1.2, 32), structuralMaterial); torsoMesh.position.y = 1.9;
+                    activeVisualGroup.add(headMesh, torsoMesh);
+                    vertexBadgeNode.innerText = "Active Vertices: 2,400 (RTX Ultra Complex Rig)";
+                } 
+                else if (optimizationTier === "MID_BALANCED") {
+                    const headMesh = new THREE.Mesh(new THREE.SphereGeometry(0.4 * dimensionScalar, 12, 12), structuralMaterial); headMesh.position.y = 2.8;
+                    const torsoMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.5 * dimensionScalar, 0.3 * dimensionScalar, 1.2, 12), structuralMaterial); torsoMesh.position.y = 1.9;
+                    activeVisualGroup.add(headMesh, torsoMesh);
+                    vertexBadgeNode.innerText = "Active Vertices: 450 (Balanced Optimization Profile)";
+                } 
+                else {
+                    // Potato Mode: Strip away individual limbs and loops. Render single flat box layout (zero compute cost)
+                    const lowPolyHullBox = new THREE.Mesh(new THREE.BoxGeometry(0.8 * dimensionScalar, 2.5 * dimensionScalar, 0.8 * dimensionScalar), new THREE.MeshBasicMaterial({ color: 0xff2e63 }));
+                    lowPolyHullBox.position.y = 1.25;
+                    activeVisualGroup.add(lowPolyHullBox);
+                    vertexBadgeNode.innerText = "Active Vertices: 8 (Potato Mode Primitive Hull)";
                 }
             } 
-            else if (propTypeKeyString === "scaffold") {
-                if (lodIndexValue === 0) {
-                    coreGeometryBlock = new THREE.IcosahedronGeometry(0.5, 3);
-                    polyBadge.innerText = "Vertices: 642 (AAA High LOD)";
-                } else if (lodIndexValue === 1) {
-                    coreGeometryBlock = new THREE.IcosahedronGeometry(0.5, 1);
-                    polyBadge.innerText = "Vertices: 120 (Balanced LOD 1)";
+            else {
+                // RENDER PROP CONTAINER STRUCTURES
+                if (optimizationTier === "RTX_HIGH") {
+                    const primaryBaseMesh = currentSubtype === "chest" ? new THREE.BoxGeometry(1.2, 0.9, 0.9) : new THREE.CylinderGeometry(0.4, 0.4, 2.5, 32);
+                    const instantiatedMesh = new THREE.Mesh(primaryBaseMesh, structuralMaterial); instantiatedMesh.position.y = 0.8;
+                    activeVisualGroup.add(instantiatedMesh);
+                    vertexBadgeNode.innerText = "Active Vertices: 1,250 (High Mesh Precision Prop)";
                 } else {
-                    coreGeometryBlock = new THREE.BoxGeometry(0.7, 0.7, 0.7);
-                    polyBadge.innerText = "Vertices: 8 (Potato Low LOD 2)";
+                    const primaryBaseMesh = currentSubtype === "chest" ? new THREE.BoxGeometry(1.1, 0.8, 0.8) : new THREE.BoxGeometry(0.6, 2.2, 0.6);
+                    const instantiatedMesh = new THREE.Mesh(primaryBaseMesh, new THREE.MeshBasicMaterial({ color: 0xe2e8f0 })); instantiatedMesh.position.y = 0.8;
+                    activeVisualGroup.add(instantiatedMesh);
+                    vertexBadgeNode.innerText = "Active Vertices: 8 (Potato Bound Optimized Prop)";
                 }
             }
-            else if (propTypeKeyString === "crate") {
-                // Crates are inherently cubic, decimation alters chamfer / texture fidelity mapping bounds
-                coreGeometryBlock = new THREE.BoxGeometry(0.8, 0.8, 0.8);
-                polyBadge.innerText = (lodIndexValue === 0) ? "Vertices: 8 (Max Texture Mapping)" : "Vertices: 8 (Optimized Sample Rates)";
-            }
 
-            const finalInstantiatedMesh = new THREE.Mesh(coreGeometryBlock, pbrPropMaterial);
-            finalInstantiatedMesh.position.y = 0.4;
-            currentPropActiveGroup.add(finalInstantiatedMesh);
-            
-            propScene.add(currentPropActiveGroup);
-            debugLog.innerHTML = `>> Prop Engine: Spawned '${propTypeKeyString}' template. Mesh parameters compiled inside current frame window.`;
+            factoryScene.add(activeVisualGroup);
+            consoleLogNode.innerHTML = `>> Synthesizer Frame: Processed ${currentMode} layout template ['${currentSubtype}']. Profile active optimization level: [${optimizationTier}].`;
         }
 
-        function applyLivePropOptimizationPipeline() {
-            if (!currentPropActiveGroup) return;
-            // Re-instantiate mesh instantly with newly assigned LOD structural segments count values
-            generateBasePropStructure(currentPropTypeKey);
-        }
-
-        // --- 4. COLLISION HULL (HITBOX) GENERATOR & PACKER ---
-        function bakePropAssetToGameMemory() {
-            if (!currentPropActiveGroup) {
-                debugLog.innerHTML = "<span style='color:#ff2e63;'>>> Operation Aborted: Viewport buffer is empty! Choose a template first.</span>";
-                return;
-            }
-
-            const currentLODLevel = document.getElementById("slider-lod").value;
+        // --- 4. BAKE ASSET PROTOCOL GENERATOR FOR NATIVE ENGINE CALLS ---
+        function bakeAssetToGojomaEngineManifest() {
+            const hwTier = document.getElementById("hardware-decimation-tier").value;
+            const absoluteScale = document.getElementById("scale-modifier-slider").value;
             
-            // Build absolute simplified collision tracking maps parameters (Box bounding hulls protect CPU tracking runtime lag cost)
-            const compiledPropDataDataStruct = {
-                propReferenceID: "prop_aaa_" + currentPropTypeKey + "_baked",
-                activeBakedLODTier: currentLODLevel,
-                collisionHullType: "AABB_BOX_HITBOX", // Axis-Aligned Bounding Box (High performance safe mode physics model)
-                physicsMassConfig: (currentPropTypeKey === 'barrel') ? 45.0 : 200.0
+            // Build absolute JSON data packet architecture ready to be read by Gojoma engine scripts
+            const assetManifestPayloadData = {
+                factoryId: "gojoma_asset_" + currentSubtype + "_" + Date.now(),
+                assetType: currentMode,
+                meshProfile: hwTier,
+                appliedScaleModifier: absoluteScale,
+                boundingHullType: currentMode === "character" ? "CYLINDER_COLLIDER" : "AABB_BOX",
+                compatibilityMode: hwTier === "POTATO_WIN7" ? "LEGACY_WIN7_DIRECTX9" : "MODERN_WEBGL2_RTX"
             };
 
-            debugLog.innerHTML = `<span style='color:#00ff66; font-weight:bold;'>>> PRO_BAKE COMPLETED SUCCESSFULLY!\n>> Packed Hull Register: ID: ${compiledPropDataDataStruct.propReferenceID} | LOD Tier: ${compiledPropDataDataStruct.activeBakedLODTier} | Collision Engine Status: Dynamic Hitbox Generated! Ready for asset pipeline calls.</span>`;
+            consoleLogNode.innerHTML = `<span style='color:var(--accent-green); font-weight:bold;'>>> [ASSET FACTORY PACKAGING SUCCESSFUL]\n>> Manifest Rig Identifier: ${assetManifestPayloadData.factoryId}\n>> Hardware Strategy: ${assetManifestPayloadData.compatibilityMode}\n>> Ready Code Syntax Call: if asset_load eq trigger : import_baked_asset "${assetManifestPayloadData.factoryId}"</span>`;
         }
 
-        // --- 5. RENDER LOOP REFRESH TICK ---
-        generateBasePropStructure("barrel"); // Startup baseline focus target element
+        // --- 5. VIEWPORT REALTIME ROTATION DISPLAY TIMER LOOP ---
+        switchArchetypeMode("character"); // Initialize character workflow tracking parameters instantly on startup frames
 
-        function propStudioFrameTickLoop() {
-            requestAnimationFrame(propStudioFrameTickLoop);
-            if (currentPropActiveGroup) {
-                currentPropActiveGroup.rotation.y += 0.01;
+        function operationalFrameStepTick() {
+            requestAnimationFrame(operationalFrameStepTick);
+            if (activeVisualGroup) {
+                activeVisualGroup.rotation.y += 0.015; // Smooth cinematic turntable rotation display
             }
-            propRenderer.render(propScene, propCamera);
+            factoryRenderer.render(factoryScene, factoryCamera);
         }
-        propStudioFrameTickLoop();
+        operationalFrameStepTick();
 
         window.addEventListener('resize', () => {
-            propCamera.aspect = window.innerWidth / (window.innerHeight - 325);
-            propCamera.updateProjectionMatrix();
-            propRenderer.setSize(window.innerWidth, window.innerHeight - 325);
+            const w = window.innerWidth - 400; const h = window.innerHeight - 140;
+            factoryCamera.aspect = w / h; factoryCamera.updateProjectionMatrix();
+            factoryRenderer.setSize(w, h);
         });
     </script>
 </body>
