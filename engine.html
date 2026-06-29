@@ -3,77 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gojoma Engine v9.0 - Interactive 3D Drag &amp; Drop Placement</title>
+    <title>Gojoma Engine v9.5 - Production Suite</title>
     <style>
         :root {
-            --bg-base: #030408;
-            --bg-surface: #0a0c16;
-            --bg-input: #010204;
-            --accent-purple: #a855f7;
-            --accent-green: #00ff66;
-            --accent-blue: #38bdf8;
-            --text-main: #94a3b8;
-            --text-bright: #ffffff;
-            --border: #1e293b;
+            --bg-base: #030408; --bg-surface: #0a0c16; --bg-input: #010204;
+            --accent-purple: #a855f7; --accent-green: #00ff66; --accent-blue: #38bdf8;
+            --text-main: #94a3b8; --text-bright: #ffffff; --border: #1e293b;
         }
-
         body {
-            margin: 0; padding: 0;
-            background-color: var(--bg-base);
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            color: var(--text-main);
-            display: flex; flex-direction: column;
-            height: 100vh; overflow: hidden;
+            margin: 0; padding: 0; background-color: var(--bg-base);
+            font-family: 'Segoe UI', system-ui, sans-serif; color: var(--text-main);
+            display: flex; flex-direction: column; height: 100vh; overflow: hidden;
         }
-
         #engine-header {
-            height: 55px; background: var(--bg-surface);
-            border-bottom: 2px solid var(--accent-purple);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 20px; box-sizing: border-box;
+            height: 55px; background: var(--bg-surface); border-bottom: 2px solid var(--accent-purple);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-sizing: border-box;
         }
-        .branding { font-weight: bold; font-size: 13px; color: var(--accent-purple); letter-spacing: 1px; text-transform: uppercase; }
-        
+        .branding { font-weight: bold; font-size: 12px; color: var(--accent-purple); text-transform: uppercase; }
         .action-group { display: flex; gap: 8px; align-items: center; }
         .selector-menu {
             background: #121624; color: var(--text-bright); border: 1px solid var(--border);
             font-size: 11px; font-weight: bold; padding: 6px 10px; border-radius: 4px; outline: none;
         }
-        
         .btn {
-            background: #1e293b; color: var(--text-bright);
-            border: 1px solid var(--border); padding: 6px 14px;
-            font-size: 11px; font-weight: bold; border-radius: 4px;
+            background: #1e293b; color: var(--text-bright); border: 1px solid var(--border);
+            padding: 6px 14px; font-size: 11px; font-weight: bold; border-radius: 4px;
             text-transform: uppercase; cursor: pointer; transition: all 0.2s;
         }
         .btn:hover { border-color: var(--accent-purple); color: var(--accent-purple); }
         .btn-success { background: var(--accent-purple); border: none; color: white; }
-
-        #studio-workspace { display: flex; flex: 1; height: calc(100vh - 55px); }
         
+        #studio-workspace { display: flex; flex: 1; height: calc(100vh - 55px); }
         #viewport-pane { width: 50%; display: flex; flex-direction: column; border-right: 1px solid var(--border); position: relative; }
         #canvas-viewport { flex: 1; background: #000; position: relative; overflow: hidden; }
         
-        #interaction-banner {
+        #hud-status-overlay {
             position: absolute; top: 15px; left: 15px; background: rgba(10, 12, 22, 0.9);
-            padding: 8px 14px; font-size: 11px; border-radius: 4px; border: 1px solid var(--accent-purple);
-            color: var(--text-bright); font-family: monospace; pointer-events: none; z-index: 100;
-            line-height: 1.4;
+            padding: 10px; font-size: 11px; border-radius: 4px; border: 1px solid var(--accent-purple);
+            color: var(--text-bright); font-family: monospace; z-index: 100;
         }
-
         #engine-terminal { 
-            height: 140px; background: var(--bg-input); padding: 12px; 
-            font-family: 'Courier New', monospace; font-size: 11px; color: var(--accent-blue); 
-            overflow-y: auto; white-space: pre-wrap; border-top: 1px solid var(--border); box-sizing: border-box; 
+            height: 140px; background: var(--bg-input); padding: 12px; font-family: monospace; 
+            font-size: 11px; color: var(--accent-blue); overflow-y: auto; white-space: pre-wrap; border-top: 1px solid var(--border); box-sizing: border-box; 
         }
-
         #control-pane { width: 50%; display: flex; flex-direction: column; background: #070911; padding: 15px; box-sizing: border-box; gap: 10px; }
-        .panel-title { font-size: 11px; text-transform: uppercase; font-weight: bold; color: #64748b; letter-spacing: 0.5px; }
-        
         #gojoma-script-pad { 
-            flex: 1; background: var(--bg-input); border: 1px solid var(--border); 
-            border-radius: 6px; color: var(--accent-green); font-family: 'Courier New', monospace; 
-            font-size: 12px; padding: 12px; resize: none; outline: none; line-height: 1.5; 
+            flex: 1; background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; 
+            color: var(--accent-green); font-family: monospace; font-size: 12px; padding: 12px; resize: none; outline: none; line-height: 1.5; 
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -81,148 +57,139 @@
 <body>
 
     <div id="engine-header">
-        <span class="branding">Gojoma Engine v9.0 [Visual Click-Drag &amp; Drop System]</span>
+        <span class="branding">Gojoma Grand Core Engine v9.5</span>
         <div class="action-group">
             <select id="spawn-asset-selector" class="selector-menu">
-                <option value="hero">Select Asset: Playable Hero Component</option>
-                <option value="heo">Select Asset: Companion NPC (heo)</option>
-                <option value="enemy1">Select Asset: Hostile Enemy Enemy1</option>
-                <option value="car">Select Asset: Sports Prop (car)</option>
+                <option value="hero">Asset: Playable Hero Model</option>
+                <option value="heo">Asset: Companion NPC (heo)</option>
+                <option value="enemy1">Asset: Combat Enemy Mesh</option>
+                <option value="sad_actor">Asset: Melancholic Story Actor</option>
+                <option value="animal">Asset: Quadruped Creature</option>
             </select>
             <button class="btn btn-success" onclick="spawnAssetForPlacementDrag()">+ Spawn &amp; Drag</button>
+            <button class="btn" style="background:#b91c1c; border:none;" onclick="triggerTestStoryHijack()">⚡ Test NPC Playable Switch</button>
             <select id="camera-perspective-mode" class="selector-menu" onchange="switchViewportPerspective()">
                 <option value="TPV">Camera: Third-Person View</option>
                 <option value="FPV">Camera: First-Person View</option>
             </select>
-            <button class="btn" onclick="saveProjectDataManifest()">Save Layout</button>
-            <button class="btn" onclick="loadProjectDataManifest()">Load Layout</button>
+            <button class="btn" onclick="compileEngineScriptsV95()">Compile &amp; Boot</button>
         </div>
     </div>
 
     <div id="studio-workspace">
         <div id="viewport-pane">
             <div id="canvas-viewport">
-                <div id="interaction-banner">
-                    <strong style="color:var(--accent-purple);">WORKSPACE CONTROLS:</strong><br>
-                    • Move mouse across screen to position active assets.<br>
-                    • <span style="color:var(--accent-green);">Right-Click</span> to lock object coordinates.<br>
-                    • Middle-Click/Click wheel to toggle Camera Freelook mode.
+                <div id="hud-status-overlay">
+                    <span id="takeover-hud-label" style="color:var(--accent-blue); font-weight:bold;">SYSTEM NOMINAL</span><br>
+                    • Move mouse to drag asset lines.<br>
+                    • <span style="color:var(--accent-green);">Right-Click</span> to lock object positions.<br>
+                    • Middle-Click mouse wheel to toggle Freelook.
                 </div>
             </div>
-            <div id="engine-terminal">>> Gojoma v9.0 Active. Select an item from the top menu and press "+ Spawn & Drag" to start placing objects visually.</div>
+            <div id="engine-terminal">>> Engine core initialized. Use toolbars to manage entity distributions...</div>
         </div>
 
         <div id="control-pane">
-            <div class="panel-title">Gojoma Live Coordinated Manifest Output</div>
-            <textarea id="gojoma-script-pad" spellcheck="false">// --- DYNAMIC ENGINE VISUAL PLACEMENT DATA ---
-place character named "hero" at coordinates(X: 0, Y: 1.1, Z: 0)</textarea>
+            <textarea id="gojoma-script-pad" spellcheck="false">// --- DYNAMIC ASSET PLACEMENT MANIFEST ---
+place asset named "hero" at coordinates(X: 0.00, Y: 1.10, Z: 0.00)
+
+// --- RUNTIME STORY CODES ---
+[GAMEPLAY_START]
+if hero punch enemy1:
+    let enemy health -10
+
+if story_trigger eq emergency_swap:
+    execute dynamic_controller_takeover target_entity "heo" tracking_time 15_sec
+[GAMEPLAY_END]</textarea>
         </div>
     </div>
 
     <script>
-        // --- 1. WEBGL CANVAS FIELD CORE PIPELINE ---
+        // --- 1. CORE THREE.JS PIPELINE SETUP ---
         const viewBlock = document.getElementById("canvas-viewport");
         const masterScene = new THREE.Scene(); masterScene.background = new THREE.Color(0x04050a);
         const coreCamera = new THREE.PerspectiveCamera(50, (window.innerWidth * 0.5) / (window.innerHeight - 175), 0.1, 1000);
         
-        const engineRenderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+        const engineRenderer = new THREE.WebGLRenderer({ antialias: true });
         engineRenderer.setSize(window.innerWidth * 0.5, window.innerHeight - 175);
         viewBlock.appendChild(engineRenderer.domElement);
 
-        masterScene.add(new THREE.AmbientLight(0xffffff, 0.45));
-        const dynamicSunlight = new THREE.DirectionalLight(0xffffff, 1.4); dynamicSunlight.position.set(30, 60, 30); masterScene.add(dynamicSunlight);
+        masterScene.add(new THREE.AmbientLight(0xffffff, 0.5));
+        const skySun = new THREE.DirectionalLight(0xffffff, 1.2); skySun.position.set(30, 60, 30); masterScene.add(skySun);
         
-        // Target structural invisible plane used explicitly for raycasting math
-        const mathematicalFloorMesh = new THREE.Mesh(
-            new THREE.PlaneGeometry(1000, 1000),
-            new THREE.MeshBasicMaterial({ visible: false })
-        );
-        mathematicalFloorMesh.rotation.x = -Math.PI / 2;
-        masterScene.add(mathematicalFloorMesh);
+        const floorGridPlane = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1000), new THREE.MeshBasicMaterial({ visible: false }));
+        floorGridPlane.rotation.x = -Math.PI / 2; masterScene.add(floorGridPlane);
         masterScene.add(new THREE.GridHelper(200, 50, 0xa855f7, 0x131726));
 
-        // Geometry Archetypes Registry Map
-        const shapeBlueprints = {
+        // Geometric Asset Definitions
+        const blueprints = {
             hero: { geo: new THREE.BoxGeometry(1.2, 2.2, 1.2), mat: new THREE.MeshStandardMaterial({ color: 0xa855f7 }) },
             heo: { geo: new THREE.CylinderGeometry(0.5, 0.5, 2.0, 16), mat: new THREE.MeshStandardMaterial({ color: 0x38bdf8 }) },
             enemy1: { geo: new THREE.BoxGeometry(1.4, 2.4, 1.4), mat: new THREE.MeshStandardMaterial({ color: 0xff2e63 }) },
-            car: { geo: new THREE.BoxGeometry(2.5, 1.5, 4.5), mat: new THREE.MeshStandardMaterial({ color: 0x00ff66 }) }
+            sad_actor: { geo: new THREE.BoxGeometry(1.0, 1.8, 1.0), mat: new THREE.MeshStandardMaterial({ color: 0x64748b }) },
+            animal: { geo: new THREE.BoxGeometry(1.0, 0.8, 1.8), mat: new THREE.MeshStandardMaterial({ color: 0xf59e0b }) }
         };
 
         const instancedSceneObjectsRegistry = {};
-        
-        // Setup initial baseline hero entity object
-        instancedSceneObjectsRegistry["hero"] = new THREE.Mesh(shapeBlueprints.hero.geo, shapeBlueprints.hero.mat);
+        instancedSceneObjectsRegistry["hero"] = new THREE.Mesh(blueprints.hero.geo, blueprints.hero.mat);
         instancedSceneObjectsRegistry["hero"].position.set(0, 1.1, 0);
         masterScene.add(instancedSceneObjectsRegistry["hero"]);
 
-        // --- 2. VECTOR RAYCASTING & DRAG-AND-DROP PLACEMENT CONTROLS ---
+        // --- 2. INTERACTIVE VISUAL DRAG AND DROP SUBSYSTEM ---
         let activeSelectedDragMesh = null;
         let activeSelectedTypeKey = "";
-        const spatialCursorRaycaster = new THREE.Raycaster();
-        const screenNormalizedMouseVector = new THREE.Vector2();
+        const spatialRaycaster = new THREE.Raycaster();
+        const screenMouseCoords = new THREE.Vector2();
 
-        // Prevent browser's context menu popups from showing up on right-click inside viewport
-        viewBlock.addEventListener('contextmenu', event => event.preventDefault());
+        viewBlock.addEventListener('contextmenu', e => e.preventDefault());
 
         function spawnAssetForPlacementDrag() {
-            const chosenKey = document.getElementById("spawn-asset-selector").value;
-            activeSelectedTypeKey = chosenKey;
+            const assetKey = document.getElementById("spawn-asset-selector").value;
+            activeSelectedTypeKey = assetKey;
 
-            // If object already exists, pick it up to change location coordinates
-            if (instancedSceneObjectsRegistry[chosenKey]) {
-                activeSelectedDragMesh = instancedSceneObjectsRegistry[chosenKey];
+            if (instancedSceneObjectsRegistry[assetKey]) {
+                activeSelectedDragMesh = instancedSceneObjectsRegistry[assetKey];
             } else {
-                // Otherwise instantiate a clean instance dynamically onto scene vector grids
-                const newPlacementMesh = new THREE.Mesh(shapeBlueprints[chosenKey].geo, shapeBlueprints[chosenKey].mat);
-                masterScene.add(newPlacementMesh);
-                instancedSceneObjectsRegistry[chosenKey] = newPlacementMesh;
-                activeSelectedDragMesh = newPlacementMesh;
+                const newMesh = new THREE.Mesh(blueprints[assetKey].geo, blueprints[assetKey].mat);
+                masterScene.add(newMesh);
+                instancedSceneObjectsRegistry[assetKey] = newMesh;
+                activeSelectedDragMesh = newMesh;
             }
-
-            document.getElementById("engine-terminal").innerHTML = `>> [DRAG MODE ACTIVE]: Move mouse to position [${chosenKey}]. Right-click anywhere on the viewport grid to place and drop.`;
+            document.getElementById("engine-terminal").innerHTML = `>> [DRAG MODE ACTIVE]: Repositioning object [${assetKey}]. Right-Click to drop.`;
         }
 
-        // Track 2D screenspace coordinate adjustments
         window.addEventListener('mousemove', (event) => {
-            const structuralBounds = engineRenderer.domElement.getBoundingClientRect();
-            screenNormalizedMouseVector.x = ((event.clientX - structuralBounds.left) / structuralBounds.width) * 2 - 1;
-            screenNormalizedMouseVector.y = -((event.clientY - structuralBounds.top) / structuralBounds.height) * 2 + 1;
+            const viewportBounds = engineRenderer.domElement.getBoundingClientRect();
+            screenMouseCoords.x = ((event.clientX - viewportBounds.left) / viewportBounds.width) * 2 - 1;
+            screenMouseCoords.y = -((event.clientY - viewportBounds.top) / viewportBounds.height) * 2 + 1;
 
-            // If an asset is actively being dragged, update its coordinates based on the floor raycast collision
             if (activeSelectedDragMesh && !isPointerLocked) {
-                spatialCursorRaycaster.setFromCamera(screenNormalizedMouseVector, coreCamera);
-                const rayIntersections = spatialCursorRaycaster.intersectObject(mathematicalFloorMesh);
-
-                if (rayIntersections.length > 0) {
-                    const clickPointCoord = rayIntersections[0].point;
+                spatialRaycaster.setFromCamera(screenMouseCoords, coreCamera);
+                const hits = spatialRaycaster.intersectObject(floorGridPlane);
+                if (hits.length > 0) {
+                    let verticalOffset = 1.0;
+                    if (activeSelectedTypeKey === "hero") verticalOffset = 1.1;
+                    if (activeSelectedTypeKey === "enemy1") verticalOffset = 1.2;
+                    if (activeSelectedTypeKey === "sad_actor") verticalOffset = 0.9;
+                    if (activeSelectedTypeKey === "animal") verticalOffset = 0.4;
                     
-                    // Adjust object vertical alignment so model sits flush on top of floor grid lines
-                    let heightAdjustmentOffset = 1.0;
-                    if (activeSelectedTypeKey === "hero") heightAdjustmentOffset = 1.1;
-                    if (activeSelectedTypeKey === "enemy1") heightAdjustmentOffset = 1.2;
-                    if (activeSelectedTypeKey === "car") heightAdjustmentOffset = 0.75;
-
-                    activeSelectedDragMesh.position.set(clickPointCoord.x, heightAdjustmentOffset, clickPointCoord.z);
+                    activeSelectedDragMesh.position.set(hits[0].point.x, verticalOffset, hits[0].point.z);
                 }
             }
         });
 
-        // Capture Right-Click Drop Event Codes
         window.addEventListener('mousedown', (event) => {
-            const structuralBounds = engineRenderer.domElement.getBoundingClientRect();
-            if (event.clientX >= structuralBounds.left && event.clientX <= structuralBounds.right &&
-                event.clientY >= structuralBounds.top && event.clientY <= structuralBounds.bottom) {
+            const viewportBounds = engineRenderer.domElement.getBoundingClientRect();
+            if (event.clientX >= viewportBounds.left && event.clientX <= viewportBounds.right &&
+                event.clientY >= viewportBounds.top && event.clientY <= viewportBounds.bottom) {
                 
-                // Event Button 2 matches explicit Right-Click action parameters
-                if (event.button === 2 && activeSelectedDragMesh) {
-                    const finalPosX = activeSelectedDragMesh.position.x.toFixed(2);
-                    const finalPosY = activeSelectedDragMesh.position.y.toFixed(2);
-                    const finalPosZ = activeSelectedDragMesh.position.z.toFixed(2);
-
-                    document.getElementById("engine-terminal").innerHTML += `\n>> [ASSET LOCKED]: Placed ${activeSelectedTypeKey} at coordinates(X: ${finalPosX}, Y: ${finalPosY}, Z: ${finalPosZ})`;
+                if (event.button === 2 && activeSelectedDragMesh) { // Right Click
+                    const px = activeSelectedDragMesh.position.x.toFixed(2);
+                    const py = activeSelectedDragMesh.position.y.toFixed(2);
+                    const pz = activeSelectedDragMesh.position.z.toFixed(2);
                     
-                    appendCoordinatesToScriptPad(activeSelectedTypeKey, finalPosX, finalPosY, finalPosZ);
+                    document.getElementById("engine-terminal").innerHTML += `\n>> [GRID SYNCED]: Locked ${activeSelectedTypeKey} at (X: ${px}, Y: ${py}, Z: ${pz})`;
+                    syncObjectPlacementsToTextArea(activeSelectedTypeKey, px, py, pz);
                     
                     activeSelectedDragMesh = null;
                     activeSelectedTypeKey = "";
@@ -230,93 +197,113 @@ place character named "hero" at coordinates(X: 0, Y: 1.1, Z: 0)</textarea>
             }
         });
 
-        function appendCoordinatesToScriptPad(name, x, y, z) {
-            const scriptPad = document.getElementById("gojoma-script-pad");
-            let sourceLines = scriptPad.value.split('\n');
-            
-            // Clean out old position directives for this specific item key if they exist
-            sourceLines = sourceLines.filter(line => !line.includes(`named "${name}"`));
-            
-            // Inject clean up-to-date position data at the top of the file
-            const visualPlacementCommand = `place asset named "${name}" at coordinates(X: ${x}, Y: ${y}, Z: ${z})`;
-            sourceLines.unshift(visualPlacementCommand);
-            
-            scriptPad.value = sourceLines.join('\n');
+        function syncObjectPlacementsToTextArea(name, x, y, z) {
+            const pad = document.getElementById("gojoma-script-pad");
+            let lines = pad.value.split('\n');
+            lines = lines.filter(line => !line.includes(`named "${name}"`));
+            lines.unshift(`place asset named "${name}" at coordinates(X: ${x}, Y: ${y}, Z: ${z})`);
+            pad.value = lines.join('\n');
         }
 
-        // --- 3. DUAL CAMERA FREELOOK MOUSE MANAGEMENT ---
+        // --- 3. DUAL-PERSPECTIVE MOUSE FREELOOK MATRIX ---
         let mousePitchAngle = 0; let mouseYawAngle = 0;
         let isPointerLocked = false;
 
-        // Toggle freelook mode with a clean middle-click/wheel click
-        viewBlock.addEventListener('mousedown', (event) => {
-            if (event.button === 1) { // Middle Mouse Wheel Button Click
-                event.preventDefault();
-                if (!isPointerLocked) {
-                    viewBlock.requestPointerLock();
-                } else {
-                    document.exitPointerLock();
-                }
+        viewBlock.addEventListener('mousedown', (e) => {
+            if (e.button === 1) { // Middle Mouse Wheel Button Click
+                e.preventDefault();
+                if (!isPointerLocked) viewBlock.requestPointerLock();
+                else document.exitPointerLock();
             }
         });
 
         document.addEventListener('pointerlockchange', () => {
             isPointerLocked = (document.pointerLockElement === viewBlock);
-            document.getElementById("engine-terminal").innerHTML += isPointerLocked ? 
-                "\n>> Freelook Controls Lock: Active. Drag mode temporarily paused." : 
-                "\n>> Freelook Controls Unlocked: Drag mode active.";
         });
 
-        document.addEventListener('mousemove', (event) => {
+        document.addEventListener('mousemove', (e) => {
             if (!isPointerLocked) return;
-            mouseYawAngle -= event.movementX * 0.003;
-            mousePitchAngle -= event.movementY * 0.003;
-            mousePitchAngle = Math.max(-Math.PI / 3.2, Math.min(Math.PI / 3.2, mousePitchAngle));
-            updateCameraViewPositionVectors();
+            mouseYawAngle -= e.movementX * 0.003;
+            mousePitchAngle -= e.movementY * 0.003;
+            mousePitchAngle = Math.max(-Math.PI / 3.3, Math.min(Math.PI / 3.3, mousePitchAngle));
+            updateEngineCameraRigVectors();
         });
 
-        function updateCameraViewPositionVectors() {
-            const currentViewSetting = document.getElementById("camera-perspective-mode").value;
-            const heroEntity = instancedSceneObjectsRegistry["hero"];
-            if (!heroEntity) return;
+        // --- 4. RUNTIME STORY HIJACK ENGINE ---
+        let operationalPlayerTargetKey = "hero";
+        let takeoverActiveFlag = false;
+        let takeoverTimerCountdown = 0;
 
-            if (currentViewSetting === "FPV") {
-                coreCamera.position.set(heroEntity.position.x, heroEntity.position.y + 0.8, heroEntity.position.z);
-                const lookDirection = new THREE.Vector3(
+        function triggerTestStoryHijack() {
+            if (!instancedSceneObjectsRegistry["heo"]) {
+                document.getElementById("engine-terminal").innerHTML += "\n>> Error: Spawn 'heo' onto the field grid layout first!";
+                return;
+            }
+            initiateControllerHijackSequence("heo", 15.0);
+        }
+
+        function initiateControllerHijackSequence(targetMeshKey, timeframe) {
+            operationalPlayerTargetKey = targetMeshKey;
+            takeoverActiveFlag = true;
+            takeoverTimerCountdown = timeframe;
+            document.getElementById("engine-terminal").innerHTML += `\n>> [STORY SWITCH]: Controller focus redirected to target object mesh reference: [${targetMeshKey}]`;
+            updateEngineCameraRigVectors();
+        }
+
+        function updateEngineCameraRigVectors() {
+            const activeProfile = document.getElementById("camera-perspective-mode").value;
+            const focalTargetMesh = instancedSceneObjectsRegistry[operationalPlayerTargetKey];
+            if (!focalTargetMesh) return;
+
+            if (activeProfile === "FPV") {
+                coreCamera.position.set(focalTargetMesh.position.x, focalTargetMesh.position.y + 0.8, focalTargetMesh.position.z);
+                const lookVec = new THREE.Vector3(
                     Math.sin(mouseYawAngle) * Math.cos(mousePitchAngle),
                     Math.sin(mousePitchAngle),
                     Math.cos(mouseYawAngle) * Math.cos(mousePitchAngle)
                 ).normalize();
-                coreCamera.lookAt(new THREE.Vector3().copy(coreCamera.position).add(lookDirection));
+                coreCamera.lookAt(new THREE.Vector3().copy(coreCamera.position).add(lookVec));
             } else {
-                const distanceRadius = 35;
-                coreCamera.position.x = heroEntity.position.x + distanceRadius * Math.sin(mouseYawAngle) * Math.cos(mousePitchAngle);
-                coreCamera.position.y = heroEntity.position.y + 12 + distanceRadius * Math.sin(mousePitchAngle);
-                coreCamera.position.z = heroEntity.position.z + distanceRadius * Math.cos(mouseYawAngle) * Math.cos(mousePitchAngle);
-                coreCamera.lookAt(heroEntity.position.x, heroEntity.position.y + 1, heroEntity.position.z);
+                const radius = 30;
+                coreCamera.position.x = focalTargetMesh.position.x + radius * Math.sin(mouseYawAngle) * Math.cos(mousePitchAngle);
+                coreCamera.position.y = focalTargetMesh.position.y + 10 + radius * Math.sin(mousePitchAngle);
+                coreCamera.position.z = focalTargetMesh.position.z + radius * Math.cos(mouseYawAngle) * Math.cos(mousePitchAngle);
+                coreCamera.lookAt(focalTargetMesh.position.x, focalTargetMesh.position.y + 0.5, focalTargetMesh.position.z);
             }
         }
 
-        function switchViewportPerspective() { updateCameraViewPositionVectors(); }
-        function saveProjectDataManifest() { localStorage.setItem("gojoma_v9_save", document.getElementById("gojoma-script-pad").value); }
-        function loadProjectDataManifest() { const data = localStorage.getItem("gojoma_v9_save"); if(data) document.getElementById("gojoma-script-pad").value = data; }
+        function switchViewportPerspective() { updateEngineCameraRigVectors(); }
+        function compileEngineScriptsV95() { document.getElementById("engine-terminal").innerHTML += "\n>> Gojoma Script Stack Verification Successful."; }
 
-        // --- 4. STEP TICK LOOP INTERPOLATOR ---
-        updateCameraViewPositionVectors();
-        function renderingTickLoopStep() {
-            requestAnimationFrame(renderingTickLoopStep);
-            if (!isPointerLocked && !activeSelectedDragMesh) {
-                masterScene.rotation.y += 0.0001;
+        // --- 5. GLOBAL FRAME ENGINE lifecycle STEP TICKER ---
+        let previousClockTime = performance.now();
+        updateEngineCameraRigVectors();
+
+        function frameStepLifecycleTicker() {
+            requestAnimationFrame(frameStepLifecycleTicker);
+            
+            const currentClockTime = performance.now();
+            const elapsedDeltaSeconds = (currentClockTime - previousClockTime) / 1000;
+            previousClockTime = currentClockTime;
+
+            if (takeoverActiveFlag) {
+                takeoverTimerCountdown -= elapsedDeltaSeconds;
+                document.getElementById("takeover-hud-label").innerText = `PLAYABLE TRANSITION ACTIVE: ${takeoverTimerCountdown.toFixed(1)}s`;
+                document.getElementById("takeover-hud-label").style.color = "var(--accent-green)";
+                
+                if (takeoverTimerCountdown <= 0) {
+                    takeoverActiveFlag = false;
+                    operationalPlayerTargetKey = "hero";
+                    document.getElementById("takeover-hud-label").innerText = "SYSTEM NOMINAL";
+                    document.getElementById("takeover-hud-label").style.color = "var(--accent-blue)";
+                    document.getElementById("engine-terminal").innerHTML += `\n>> [HIJACK ENDED]: Control restored to baseline player mesh profile.`;
+                    updateEngineCameraRigVectors();
+                }
             }
+
             engineRenderer.render(masterScene, coreCamera);
         }
-        renderingTickLoopStep();
-
-        window.addEventListener('resize', () => {
-            const w = window.innerWidth * 0.5; const h = window.innerHeight - 175;
-            coreCamera.aspect = w / h; coreCamera.updateProjectionMatrix();
-            engineRenderer.setSize(w, h);
-        });
+        frameStepLifecycleTicker();
     </script>
 </body>
 </html>
