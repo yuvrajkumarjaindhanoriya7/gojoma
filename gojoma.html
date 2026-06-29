@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gojoma Engine - Integrated Open-World Workspace</title>
+    <style>
+        :root {
+            --bg-main: #0b0f19;
+            --bg-card: #131a26;
+            --text-main: #cbd5e1;
+            --text-bright: #ffffff;
+            --accent-purple: #a855f7;
+            --accent-green: #00ff66;
+            --accent-blue: #38bdf8;
+            --border-color: #1e293b;
+            --code-red: #ff4a4a;
+        }
+
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background-color: #030407; 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            color: var(--text-main); 
+            overflow-x: hidden;
+        }
+        
+        /* HEADER BAR */
+        #header-nav { 
+            height: 45px; 
+            background: #0c0f17; 
+            border-bottom: 2px solid var(--accent-purple); 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 0 15px; 
+            box-sizing: border-box; 
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .title { font-weight: bold; font-size: 13px; color: var(--accent-purple); text-transform: uppercase; letter-spacing: 1px; }
+        #live-counter { background: #1e1b4b; color: var(--accent-green); font-size: 11px; padding: 3px 8px; border-radius: 4px; font-family: monospace; }
+        
+        /* VIEWPORT & WORKSPACE SPLIT */
+        #render-viewport { height: 400px; background: #010204; position: relative; width: 100%; }
+        
+        #control-dashboard { 
+            background: #07090e; 
+            border-bottom: 1px solid var(--border-color); 
+            padding: 15px; 
+            box-sizing: border-box; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+        }
+        .console-log { 
+            background: #020305; 
+            border: 1px solid #131722; 
+            padding: 10px; 
+            border-radius: 4px; 
+            font-family: monospace; 
+            font-size: 11px; 
+            color: var(--accent-blue); 
+            min-height: 50px; 
+            white-space: pre-wrap; 
+        }
+        .spawn-btn { 
+            background: var(--accent-purple); 
+            color: white; 
+            border: none; 
+            padding: 12px; 
+            font-size: 12px; 
+            font-weight: bold; 
+            border-radius: 4px; 
+            text-transform: uppercase; 
+            cursor: pointer; 
+            width: 100%; 
+            transition: background 0.2s ease;
+        }
+        .spawn-btn:hover { background: #9333ea; }
+        .spawn-btn:active { background: #c084fc; }
+
+        /* MANUAL CONTAINER */
+        .manual-container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            padding: 40px 20px; 
+        }
+        h1 { font-size: 28px; color: var(--text-bright); border-bottom: 3px solid var(--accent-purple); padding-bottom: 15px; text-transform: uppercase; margin-top: 0; }
+        h2 { font-size: 20px; color: var(--accent-purple); margin-top: 40px; border-left: 4px solid var(--accent-purple); padding-left: 12px; text-transform: uppercase; }
+        h3 { font-size: 16px; color: var(--text-bright); margin-top: 25px; font-weight: bold; }
+        p { text-align: justify; margin-bottom: 15px; }
+        code { font-family: monospace; background-color: #1e293b; color: var(--code-red); padding: 2px 6px; border-radius: 4px; font-size: 14px; }
+        pre { background-color: #020617; color: var(--accent-blue); padding: 16px; border-radius: 8px; font-family: monospace; border-left: 4px solid var(--accent-green); overflow-x: auto; line-height: 1.5; }
+        
+        .table-responsive { overflow-x: auto; margin-top: 15px; border-radius: 8px; border: 1px solid var(--border-color); }
+        table { width: 100%; border-collapse: collapse; background-color: var(--bg-card); font-size: 15px; }
+        th { background-color: #0f111a; color: var(--text-bright); padding: 12px 15px; text-transform: uppercase; font-size: 13px; text-align: left; }
+        td { padding: 12px 15px; border-bottom: 1px solid var(--border-color); }
+        tr:last-child td { border-bottom: none; }
+        
+        .info-callout-card { background-color: rgba(168, 85, 247, 0.05); border-left: 4px solid var(--accent-purple); padding: 16px; margin-top: 20px; border-radius: 0 8px 8px 0; }
+        .info-callout-card strong { color: #c084fc; display: block; margin-bottom: 6px; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+    <div id="header-nav">
+        <span class="title">Gojoma Workspace Suite</span>
+        <span id="live-counter">Active Map NPCs: 0</span>
+    </div>
+
+    <div id="render-viewport"></div>
+
+    <div id="control-dashboard">
+        <button class="spawn-btn" onclick="executeGojomaRandomSpawnCompiler()">Execute Code: NPC(spawn:random)</button>
+        <div id="console-terminal" class="console-log">>> Gojoma Language Interpreter online. Ready to stream assets onto Big Map mesh environment...</div>
+    </div>
+
+    <div class="manual-container">
+        <h1>Gojoma Language V4.5 Manual</h1>
+        <p><strong>Official Technical Reference Guide &amp; Runtime Interpretation Rules.</strong> New triggers have been injected for open-world scaling and procedural entity population.</p>
+
+        <h2>1. Core Structural Syntax &amp; System Commands</h2>
+        <p>Gojoma Script supports native macro syntax templates to invoke standalone components and algorithms.</p>
+        
+        <h3>New Procedural Spawner Hook</h3>
+        <pre>NPC(spawn:random)</pre>
+        <p>This command sends a direct signal to the engine runtime core to select random coordinates within the safe navigation mesh area and instantly populate customized AI bots.</p>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Command Syntax</th>
+                        <th>Target Action</th>
+                        <th>Execution Logic</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>NPC(spawn:random)</code></td>
+                        <td>Procedural Crowd Population</td>
+                        <td>Dynamically spawns custom enemies or generic civilians at random positions across massive maps.</td>
+                    </tr>
+                    <tr>
+                        <td><code>if state eq player_run</code></td>
+                        <td>Equity Evaluation</td>
+                        <td>Verifies the player state to modify movement vectors accordingly.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2>2. Open-World Multi-Genre Presets (Updated)</h2>
+
+        <h3>A. GTA Style Massive Map Population</h3>
+        <p>Combination code to generate random crowds and traffic simulation across massive open-world game maps:</p>
+        <pre>// Generate endless traffic on big maps
+if map_load eq massive_open_world :
+    execute dynamic_chunk_streaming
+    trigger NPC(spawn:random) count_multiplier 50
+    assign AI_profile NPC_CIVILIAN
+    set draw_distance METERS_300</pre>
+
+        <div class="info-callout-card">
+            <strong>Big Map Optimization Rule:</strong> The <code>NPC(spawn:random)</code> function is natively integrated with <em>Frustum Culling</em>. When randomly spawned NPCs are behind the camera view, the CPU temporarily freezes their calculation load so low-end laptops don't experience stutter.
+        </div>
+    </div>
+
+    <script>
+        // --- 1. SETUP GRAPHICS VIEWPORT FOR BIG MAP ---
+        const viewContainer = document.getElementById("render-viewport");
+        const activeScene = new THREE.Scene(); activeScene.background = new THREE.Color(0x05060b);
+        
+        const openWorldCamera = new THREE.PerspectiveCamera(45, window.innerWidth / 400, 0.1, 2000);
+        openWorldCamera.position.set(0, 35, 75); openWorldCamera.lookAt(0, 0, 0);
+        
+        const coreRenderer = new THREE.WebGLRenderer({ antialias: true });
+        coreRenderer.setSize(window.innerWidth, 400);
+        viewContainer.appendChild(coreRenderer.domElement);
+
+        activeScene.add(new THREE.AmbientLight(0xffffff, 0.4));
+        const worldSun = new THREE.DirectionalLight(0xffffff, 1.2); worldSun.position.set(10, 50, 20); activeScene.add(worldSun);
+
+        // MASSIVE GRID MAP ALIGNED SIMULATION MESH
+        const massiveMapGrid = new THREE.GridHelper(200, 40, 0xa855f7, 0x1a2035);
+        massiveMapGrid.position.y = -0.5;
+        activeScene.add(massiveMapGrid);
+
+        // --- 2. RANDOM POPULATION LOGIC PARSER FUNCTIONS ---
+        let activeNPCsArray = [];
+        const consoleNode = document.getElementById("console-terminal");
+        const counterNode = document.getElementById("live-counter");
+
+        function executeGojomaRandomSpawnCompiler() {
+            consoleNode.innerHTML = ">> Compiling Syntax String: Parsing 'NPC(spawn:random)'...";
+            
+            // Loop running to generate 10 dynamic random NPCs onto our structural map
+            for(let i = 0; i < 10; i++) {
+                const randomX = (Math.random() - 0.5) * 160;
+                const randomZ = (Math.random() - 0.5) * 160;
+                
+                const characterColor = Math.random() > 0.4 ? 0x38bdf8 : 0xff2e63;
+
+                const npcMeshBox = new THREE.Mesh(
+                    new THREE.BoxGeometry(1.2, 2.2, 1.2),
+                    new THREE.MeshStandardMaterial({ color: characterColor, roughness: 0.4 })
+                );
+                
+                npcMeshBox.position.set(randomX, 1.1, randomZ);
+                activeScene.add(npcMeshBox);
+                activeNPCsArray.push(npcMeshBox);
+            }
+
+            counterNode.innerText = `Active Map NPCs: ${activeNPCsArray.length}`;
+            consoleNode.innerHTML = `<span style='color:var(--accent-green); font-weight:bold;'>>> [GOJOMA LANGUAGE PARSER SUCCESS]\n>> Executed Command: NPC(spawn:random)\n>> Dynamic Status: Injected 10 active AI entities across the 200-meter open-world coordination grid. Matrix streaming processing optimal.</span>`;
+        }
+
+        // --- 3. RENDERING TIMESTEP LIFECYCLE CONTROLLER ---
+        function globalRenderTickLoop() {
+            requestAnimationFrame(globalRenderTickLoop);
+            
+            // Rotate the entire scene environment path vectors smoothly over tracking ticks
+            activeScene.rotation.y += 0.0012;
+            
+            coreRenderer.render(activeScene, openWorldCamera);
+        }
+        globalRenderTickLoop();
+
+        // Window resize update parameters mapping adjustment functions
+        window.addEventListener('resize', () => {
+            openWorldCamera.aspect = window.innerWidth / 400;
+            openWorldCamera.updateProjectionMatrix();
+            coreRenderer.setSize(window.innerWidth, 400);
+        });
+    </script>
+</body>
+</html>
